@@ -1,8 +1,10 @@
 package com.example.humanlanguagetranslator.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,26 +19,32 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.humanlanguagetranslator.ActivityManager;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.activity.SearchActivity;
+import com.example.humanlanguagetranslator.activity.WordListActivity;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class WordListFragment extends Fragment {
 
     private static final String TAG = "WordListFragment";
+    private static final String ARG_WORD_LIST = "ARG_WORD_LIST";
 
     private RecyclerView mWordRecyclerView;
     private WordAdapter mWordAdapter;
     private OnItemSelectedCallback mOnCallback;
+    private Bundle mCreateArguments;
 
     public interface OnItemSelectedCallback {
         void onItemSelected(Word word);
@@ -59,13 +67,17 @@ public class WordListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_word_list, container, false);
-        mWordRecyclerView = (RecyclerView)view.findViewById(R.id.word_recycler_view);
-        mWordRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //设置每一项之间的分割线
-        mWordRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+        FragmentActivity activity = getActivity();
+        if (null != activity) {
+            mWordRecyclerView = (RecyclerView) view.findViewById(R.id.word_recycler_view);
+            mWordRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
+            //设置每一项之间的分割线
+            mWordRecyclerView.addItemDecoration(new DividerItemDecoration(activity, DividerItemDecoration.VERTICAL));
 
-        updateUI();
-
+            //设置显示的内容
+            setShowWord(mCreateArguments.getParcelableArrayList(ARG_WORD_LIST));
+            updateUI();
+        }
         return view;
     }
 
@@ -102,6 +114,7 @@ public class WordListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mCreateArguments = getArguments();
     }
 
     @Override
@@ -116,7 +129,7 @@ public class WordListFragment extends Fragment {
      * Update the current activity display title
      */
     private void updateAppTitle(CharSequence title) {
-        AppCompatActivity activity = (AppCompatActivity)getActivity();
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
         ActionBar supportActionBar = null;
         if (null != activity) {
             supportActionBar = activity.getSupportActionBar();
@@ -127,14 +140,36 @@ public class WordListFragment extends Fragment {
     }
 
     /**
-     * Update the current activity display list item
+     * <p> Update the current activity display list item </p>
+     * <p> Warning : Must be call after mWordRecyclerView init </p>
      */
+    @SuppressLint("NotifyDataSetChanged")
     public void updateUI() {
         if (null == mWordAdapter) {
             mWordAdapter = new WordAdapter(Dictionary.getInstance().getWords());
             mWordRecyclerView.setAdapter(mWordAdapter);
         } else {
+            //TODO need optimize
             mWordAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * set list show content
+     * <p> Warning : Must be call after mWordRecyclerView init </p>
+     * @param words show words, show default words if is null
+     */
+    public void setShowWord(@Nullable List<Word> words) {
+        if (null == words) {
+            return;
+        }
+//        ActivityManager.finishActivity(SearchActivity.class.getName());
+        if (null == mWordAdapter) {
+            mWordAdapter = new WordAdapter((words));
+            mWordRecyclerView.setAdapter(mWordAdapter);
+        } else {
+            mWordAdapter.setWords(words);
+            updateUI();
         }
     }
 
@@ -152,8 +187,8 @@ public class WordListFragment extends Fragment {
         public WordHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_word, parent, false));
             itemView.setOnClickListener(this::onClick);
-            mImageView = (ImageView)itemView.findViewById(R.id.word_item_image);
-            mTextView = (TextView)itemView.findViewById(R.id.word_item_title_text);
+            mImageView = (ImageView) itemView.findViewById(R.id.word_item_image);
+            mTextView = (TextView) itemView.findViewById(R.id.word_item_title_text);
         }
 
         public void bind(Word word, int id) {
@@ -173,7 +208,16 @@ public class WordListFragment extends Fragment {
     }
 
     private class WordAdapter extends RecyclerView.Adapter<WordHolder> {
+
         private List<Word> mWords;
+
+        public List<Word> getWords() {
+            return mWords;
+        }
+
+        public void setWords(List<Word> words) {
+            mWords = words;
+        }
 
         public WordAdapter(List<Word> words) {
             mWords = words;
@@ -196,5 +240,16 @@ public class WordListFragment extends Fragment {
         public int getItemCount() {
             return mWords.size();
         }
+    }
+
+    public static WordListFragment newInstance(Intent intent) {
+        Bundle bundle = new Bundle();
+        WordListFragment wordListFragment = new WordListFragment();
+        if (null != intent) {
+            ArrayList<Parcelable> words = intent.getParcelableArrayListExtra(WordListActivity.EXTRA_WORD_LIST);
+            bundle.putParcelableArrayList(ARG_WORD_LIST, words);
+            wordListFragment.setArguments(bundle);
+        }
+        return wordListFragment;
     }
 }

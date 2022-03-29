@@ -1,6 +1,8 @@
 package com.example.humanlanguagetranslator.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 
 import androidx.fragment.app.Fragment;
 
@@ -10,13 +12,19 @@ import com.example.humanlanguagetranslator.fragment.WordFragment;
 import com.example.humanlanguagetranslator.fragment.WordListFragment;
 import com.example.humanlanguagetranslator.data.Word;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class WordListActivity extends SingleFragmentActivity
         implements WordListFragment.OnItemSelectedCallback, WordFragment.OnWordUpdatedCallback {
+    public static final String EXTRA_WORD_LIST = "EXTRA_WORD_LIST";
+
     private static final String TAG = "WordListActivity";
 
     @Override
     protected Fragment createFragment() {
-        return new WordListFragment();
+        return WordListFragment.newInstance(getIntent());
     }
 
     @Override
@@ -47,5 +55,20 @@ public class WordListActivity extends SingleFragmentActivity
             return;
         }
         listFragment.updateUI();
+    }
+
+    /**
+     * gets an intent to display the words
+     * @param packagerContext context
+     * @param words must is ArrayList, if not show define words
+     * @return intent
+     */
+    public static Intent newIntent(Context packagerContext, List<Word> words) {
+        Intent intent = new Intent(packagerContext, WordListActivity.class);
+        if (words instanceof ArrayList) {
+            Utils.logDebug(TAG, "extra add words");
+            intent.putParcelableArrayListExtra(EXTRA_WORD_LIST, (ArrayList<? extends Parcelable>) words);
+        }
+        return intent;
     }
 }

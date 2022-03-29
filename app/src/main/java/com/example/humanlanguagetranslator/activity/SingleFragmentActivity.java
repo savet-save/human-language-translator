@@ -10,7 +10,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.humanlanguagetranslator.R;
 
-public abstract class SingleFragmentActivity extends AppCompatActivity {
+public abstract class SingleFragmentActivity extends Easy2ManagerActivity {
 
     protected  abstract Fragment createFragment();
 

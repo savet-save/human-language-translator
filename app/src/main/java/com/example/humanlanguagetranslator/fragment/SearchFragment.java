@@ -1,5 +1,7 @@
 package com.example.humanlanguagetranslator.fragment;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.activity.WordListActivity;
+import com.example.humanlanguagetranslator.activity.WordPagerActivity;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.SearchHistory;
 import com.example.humanlanguagetranslator.data.Word;
@@ -35,6 +39,7 @@ public class SearchFragment extends Fragment {
     private HistoryAdapter mHistoryAdapter;
     private Button mCancelButton;
     private SearchView mSearchView;
+    private boolean needHoldFlag = true;
 
     @Nullable
     @Override
@@ -44,7 +49,7 @@ public class SearchFragment extends Fragment {
         mHistoryRecyclerView = (RecyclerView) view.findViewById(R.id.history_info_layout);
         mHistoryRecyclerView.setLayoutManager(getLayoutManager());
 
-        mCancelButton = (Button)view.findViewById(R.id.search_cancel_button);
+        mCancelButton = (Button) view.findViewById(R.id.search_cancel_button);
         mCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,6 +65,16 @@ public class SearchFragment extends Fragment {
                 for (Word word : filterResult) {
                     Utils.logDebug(TAG, "search result : " + word.getTitle());
                 }
+                Intent intent = null;
+                if (filterResult.size() == 1) {
+                    intent = WordPagerActivity.newIntent(getActivity(), filterResult.get(0).getId());
+                    Utils.logDebug(TAG, "start word pager");
+                } else {
+                    intent = WordListActivity.newIntent(getActivity(), filterResult);
+                    Utils.logDebug(TAG, "start word list");
+                }
+                startActivity(intent);
+                needHoldFlag = false;
                 return true;
             }
 
@@ -72,6 +87,15 @@ public class SearchFragment extends Fragment {
         updateUI();
 
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (!needHoldFlag) {
+            // not need hold
+            finish();
+        }
     }
 
     /**
@@ -89,18 +113,20 @@ public class SearchFragment extends Fragment {
     /**
      * Update the current activity display list item
      */
+    @SuppressLint("NotifyDataSetChanged")
     public void updateUI() {
         if (null == mHistoryAdapter) {
             mHistoryAdapter = new HistoryAdapter(SearchHistory.getInstance().getHistory());
             mHistoryRecyclerView.setAdapter(mHistoryAdapter);
         } else {
+            //TODO need optimize
             mHistoryAdapter.notifyDataSetChanged();
         }
     }
 
     private FlexboxLayoutManager getLayoutManager() {
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getActivity());
-        layoutManager.setFlexDirection(FlexDirection.ROW);;//从左往右, 从上到下
+        layoutManager.setFlexDirection(FlexDirection.ROW);//从左往右, 从上到下
         layoutManager.setFlexWrap(FlexWrap.WRAP);//自动换行
         layoutManager.setJustifyContent(JustifyContent.FLEX_START);//左对齐
         return layoutManager;

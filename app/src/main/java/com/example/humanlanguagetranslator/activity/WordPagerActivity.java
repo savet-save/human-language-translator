@@ -21,7 +21,7 @@ import com.example.humanlanguagetranslator.data.Word;
 import java.util.List;
 import java.util.UUID;
 
-public class WordPagerActivity extends AppCompatActivity {
+public class WordPagerActivity extends Easy2ManagerActivity {
 
     private static final String EXTRA_WORD_ID = "EXTRA_WORD_ID";
     private static final String TAG = "WordPagerActivity";
@@ -65,7 +65,6 @@ public class WordPagerActivity extends AppCompatActivity {
         if (Dictionary.NOT_FOUND_POSITION != position) {
             mViewPager.setCurrentItem(position);//need use after setAdapter()
         }
-        mViewPager.getCurrentItem();
     }
 
     @Override

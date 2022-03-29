@@ -9,8 +9,6 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 public final class Utils {
-    public static final String EXTRA_WORD_ID = "extra_word_id";
-
     /**  id */
     public static final int ID_ADD_WORD = R.id.menu_item_add_word;
     public static final int ID_SEARCH_WORD = R.id.menu_item_search_word;
@@ -22,7 +20,7 @@ public final class Utils {
     }
 
     private static final String TAG = "Utils";
-    
+
     public static void logDebug(String msg) {
         if (isDebug()) {
             Log.d(TAG, msg);
