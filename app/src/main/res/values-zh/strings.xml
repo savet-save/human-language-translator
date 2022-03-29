@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">人话翻译器</string>
+    <string name="date_picker_title">最早发生的日期</string>
+    <string name="date_select_date">选择最早日期</string>
+
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+
+    <string name="add_word">新的单词</string>
+    <string name="change_word">修改单词</string>
+
+    <string name="app_title">翻译器</string>
+    <string name="search_word">查询单词</string>
+    <string name="clean_search">清除查询历史</string>
+    <string name="cancel_search">取消</string>
+</resources>

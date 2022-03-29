@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Human language translator</string>
+    <string name="word_null" translatable="false">null</string>
+    <string name="date_picker_title">The date of earliest discovery</string>
+    <string name="date_select_date">Select the earliest date</string>
+
+    <string name="year">year</string>
+    <string name="month">month</string>
+    <string name="day">day</string>
+
+    <string name="add_word">create new word</string>
+    <string name="change_word">change word</string>
+    <string name="search_word">search word</string>
+    <string name="cancel_search">back</string>
+    <string name="clean_search">clean search history</string>
+
+    <string name="app_title">translator</string>
+</resources>
