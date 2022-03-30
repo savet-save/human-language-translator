@@ -2,10 +2,13 @@ package com.example.humanlanguagetranslator.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.humanlanguagetranslator.GlobalHandle;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.fragment.WordFragment;
@@ -14,7 +17,6 @@ import com.example.humanlanguagetranslator.data.Word;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class WordListActivity extends SingleFragmentActivity
         implements WordListFragment.OnItemSelectedCallback, WordFragment.OnWordUpdatedCallback {
@@ -25,6 +27,19 @@ public class WordListActivity extends SingleFragmentActivity
     @Override
     protected Fragment createFragment() {
         return WordListFragment.newInstance(getIntent());
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initEnvironment();
+    }
+
+    /**
+     * init application environment support
+     */
+    private void initEnvironment() {
+        GlobalHandle.getInstance();
     }
 
     @Override

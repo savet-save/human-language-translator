@@ -7,12 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,6 +38,7 @@ public class SearchFragment extends Fragment {
     private Button mCancelButton;
     private SearchView mSearchView;
     private boolean needHoldFlag = true;
+    private Button mCleanButton;
 
     @Nullable
     @Override
@@ -73,6 +72,7 @@ public class SearchFragment extends Fragment {
                     intent = WordListActivity.newIntent(getActivity(), filterResult);
                     Utils.logDebug(TAG, "start word list");
                 }
+                SearchHistory.getInstance(getActivity()).putHistory(query);
                 startActivity(intent);
                 needHoldFlag = false;
                 return true;
@@ -81,6 +81,15 @@ public class SearchFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
+            }
+        });
+
+        mCleanButton = (Button) view.findViewById(R.id.clean_history_button);
+        mCleanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchHistory.getInstance(getActivity()).cleanHistory();
+                updateUI();
             }
         });
 
@@ -116,7 +125,7 @@ public class SearchFragment extends Fragment {
     @SuppressLint("NotifyDataSetChanged")
     public void updateUI() {
         if (null == mHistoryAdapter) {
-            mHistoryAdapter = new HistoryAdapter(SearchHistory.getInstance().getHistory());
+            mHistoryAdapter = new HistoryAdapter(SearchHistory.getInstance(getActivity()).getHistory());
             mHistoryRecyclerView.setAdapter(mHistoryAdapter);
         } else {
             //TODO need optimize

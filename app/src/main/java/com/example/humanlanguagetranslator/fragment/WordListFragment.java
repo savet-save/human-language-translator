@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.humanlanguagetranslator.ActivityManager;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.activity.SearchActivity;
@@ -163,7 +162,7 @@ public class WordListFragment extends Fragment {
         if (null == words) {
             return;
         }
-//        ActivityManager.finishActivity(SearchActivity.class.getName());
+
         if (null == mWordAdapter) {
             mWordAdapter = new WordAdapter((words));
             mWordRecyclerView.setAdapter(mWordAdapter);
