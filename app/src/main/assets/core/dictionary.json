@@ -1,0 +1,71 @@
+{
+    "use_version" : 1.0,
+    "words" : [
+        "words-ch"
+    ],
+    "words-ch" : [
+    {
+        "word" : "yyds",
+        "type" : [
+            "verified"
+        ],
+        "translation" : [
+            "yyds一般来说是网络用语的首拼音缩写，全称:永远的神/永远滴神，一般来说用于表达对对方的赞叹，或用于对事物的肯定和欣赏",
+            "yyds是“永远的神”的意思，表达对于某个人或事物的喜爱和信仰。因为可使用范围还挺广的，方便传播的同时还可以玩梗"
+        ],
+        "quarry" : [
+            "这个梗的由来是因为山泥若（前职业选手/主播）在直播时有一次这样称呼Uzi，他把Uzi称作永远滴神。后来随着水友们的不断重复，就变成了现在大家熟知的一个梗。"
+        ],
+        "example" : [
+            "百事可乐，yyds!",
+            "乌兹，yyds。"
+        ],
+        "verified_info": {
+            "verified_time": "2021-10-06",
+            "earliest_time": "2019-11-02",
+            "earliest_addr": "https://zhidao.baidu.com/question/655796786147620525.html",
+            "quarry_addr": "",
+            "other" : ""
+        },
+        "author" : "savet_save@163.com",
+        "restorers" : [""]
+    },
+    {
+        "word" : "yysy",
+        "synonym" : "U1S1",
+        "type" : "verified",
+        "translation" : [
+            "yysy一般来说是网络用语的首拼音缩写，全称:有一说一，一般用于说认可某人的说法，但现在主要是一种调侃或者是嘲讽了"
+        ],
+        "quarry" : [
+            "来自于英雄联盟主播炫神的梗，炫神经常会在网络上使用的一句口头禅，然后被网友们耳濡目染多了，也就学会了他的腔调了，主要是说认可某人的说法，但是现在主要是一种调侃或者是嘲讽了。"
+        ],
+        "example" : [
+            "yysy，确实",
+            "yysy，最近的情况我没看懂"
+        ],
+        "verified_info": {
+            "verified_time": "2021-10-06",
+            "earliest_time": "2019-11-24",
+            "earliest_addr": "https://jikipedia.com/definition/baidu_qa/22619110",
+            "quarry_addr": "",
+            "other" : ""
+        },
+        "author" : "savet_save@163.com",
+        "restorers" : [""]
+    },
+    {
+        "word" : "",
+        "type" : "unverified",
+        "translation" : [
+            ""
+        ],
+        "verified_info": {
+            "verified_time": "2021-10-07",
+            "earliest_time": "",
+            "earliest_addr": "",
+            "quarry_addr": "",
+            "other" : ""
+        }
+    }]
+}

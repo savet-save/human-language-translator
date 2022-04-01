@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.example.humanlanguagetranslator.GlobalHandle;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.fragment.WordFragment;
 import com.example.humanlanguagetranslator.fragment.WordListFragment;
 import com.example.humanlanguagetranslator.data.Word;
@@ -40,6 +41,7 @@ public class WordListActivity extends SingleFragmentActivity
      */
     private void initEnvironment() {
         GlobalHandle.getInstance();
+        Dictionary.getInstance().init(this);
     }
 
     @Override

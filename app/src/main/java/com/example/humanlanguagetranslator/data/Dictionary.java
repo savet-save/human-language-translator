@@ -1,6 +1,14 @@
 package com.example.humanlanguagetranslator.data;
 
+import android.content.Context;
+
 import androidx.annotation.Nullable;
+
+import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.helper.AssetsHelper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +40,68 @@ public class Dictionary {
         for(int i = 0; i < 100; i++) {
             Word word = new Word("test" + i);
             mWords.add(word);
+        }
+    }
+
+    public void init(Context context) {
+        JSONObject defineJson = AssetsHelper.getInstance().getJsonAssets(context, "core/define.json");
+        if (null == defineJson) {
+            Utils.logDebug(TAG, "warning : can't get define json object");
+            return;
+        }
+        try {
+            //version
+            double version = defineJson.getDouble(WordJsonDefine.VERSION_KEY);
+            WordJsonDefine.setVersionValue(version);
+
+            //说明
+            JSONObject templateExplain = defineJson.getJSONObject(
+                    WordJsonDefine.getExplainAnyKey(WordJsonDefine.Explain.TEMPLATE_KEY));
+            parseTemplateExplain(templateExplain);
+            JSONObject otherExplain = defineJson.getJSONObject(
+                    WordJsonDefine.getExplainAnyKey(WordJsonDefine.Explain.OTHER_EXPLAIN_KEY));
+            parseOtherExplain(otherExplain);
+
+            Utils.logDebug(TAG, "version :" + WordJsonDefine.getVersionValue() + "\n" +
+                    "template : " + templateExplain);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parseOtherExplain(JSONObject otherExplain) {
+        if (null == otherExplain) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_ERROR);
+            return;
+        }
+        WordJsonDefine.setExplainFromJson(otherExplain, WordJsonDefine.Explain.OTHER_EXPLAIN_KEY);
+        WordJsonDefine.setExplainFromJson(otherExplain, WordJsonDefine.Explain.WORDS_KEY);
+        WordJsonDefine.setExplainFromJson(otherExplain, WordJsonDefine.Explain.USE_VERSION_KEY);
+    }
+
+    private void parseTemplateExplain(JSONObject templateExplain) {
+        if (null == templateExplain) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_ERROR);
+            return;
+        }
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.TEMPLATE_KEY);
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.WORD_KEY);
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.SYNONYM_KEY);
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.TYPE_KEY);
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.TRANSLATION_KEY);
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.EXAMPLE_KEY);
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.AUTHOR_KEY);
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.RESTORERS_KEY);
+        try {
+            JSONObject verifiedInfo = templateExplain.getJSONObject(
+                    WordJsonDefine.getExplainAnyKey(WordJsonDefine.Explain.VERIFIED_INFO_KEY));
+            WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.VERIFIED_INFO_KEY);
+            WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.VERIFIED_TIME_KEY);
+            WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.EARLIEST_ADDR_KEY);
+            WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.QUARRY_ADDR_KEY);
+            WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.OTHER_KEY);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 

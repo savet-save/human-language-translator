@@ -21,6 +21,11 @@ public final class Utils {
 
     private static final String TAG = "Utils";
 
+    public enum OutLogType {
+        PARAMETER_ERROR,
+        PARAMETER_WARNING
+    }
+
     public static void logDebug(String msg) {
         if (isDebug()) {
             Log.d(TAG, msg);
@@ -39,6 +44,17 @@ public final class Utils {
 
     public static void outLog(String tag, String msg) {
         Log.d(tag, msg);
+    }
+
+    public static void outLog(String tag, OutLogType type) {
+        switch (type) {
+            case PARAMETER_ERROR:
+                Log.e(tag, "Error : parameter is null");
+                break;
+            case PARAMETER_WARNING:
+                Log.d(tag, "Waring : parameter is null");
+                break;
+        }
     }
 
     public static boolean isDualPane(AppCompatActivity activity) {

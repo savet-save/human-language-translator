@@ -1,0 +1,67 @@
+{
+  "//": "当前文件主要用于定义dictionary.json文件使用到的对象，和解释key所对应的作用，以'//'开头的key就代表是注释",
+  "//version": "表示当前的协议的版本号，主版本号表示结构的变化，次版本号表示其他情况",
+  "version": 1.0,
+  "//type": {
+    "//type": "type表示该词条的类型",
+    "//undefine": "表示未定义的类型, 代表类型不能确定, 一般也是默认类型",
+    "//unverified": "表示是未经证实的类型, 代表未经考证或考证后不确定",
+    "//verified": "表示是经过证实的类型, 代表是经过考证的，并且大概率是确定的，并且需有verified对象也不能为空"
+  },
+  "type": [
+    "undefine",
+    "unverified",
+    "verified"
+  ],
+  "//template": {
+    "//template": "代表一个词条对象的模板，主要有以下内容，在type的值不是verified时verified-info对象可以不要",
+    "//word": "词条，必须存在",
+    "//synonym": "同义词，可选",
+    "//type": "表示词条的类型，取值要求为当前文件中type的其中一个key，不写则默认为undefine",
+    "//translation": "解释，可以有多个，必须存在",
+    "//quarry": "表示来源，可选",
+    "//example": "示例，可以有多个，可选",
+    "//verified_info": {
+      "//verified_info": "表示考证的效果消息，除了type是verified类型的情况下都可选",
+      "//verified_time": "考证的时间",
+      "//earliest_time": "发现到最早使用的时间",
+      "//earliest_addr": "发现的地址",
+      "//quarry_addr": "出处的地址",
+      "//other": "其他信息"
+    },
+    "//author": "表示该词条的作者，推荐留邮箱即可，可选",
+    "//restorers": "表示该词条的修复者，可选"
+  },
+  "template": {
+    "word": "",
+    "synonym": [
+      ""
+    ],
+    "type": "",
+    "translation": [
+      ""
+    ],
+    "quarry": [
+      ""
+    ],
+    "example": [
+      ""
+    ],
+    "verified_info": {
+      "verified_time": "",
+      "earliest_time": "",
+      "earliest_addr": "",
+      "quarry_addr": "",
+      "other": ""
+    },
+    "author": "",
+    "restorers": [
+      ""
+    ]
+  },
+  "//other_explain": {
+    "//other_explain": "其他dictionary.json文件所使用的key的说明",
+    "//words": "words里面的数据表示当前所使用的词典，如:words-ch代表是中文环境下的词典，word表示当前对象代表的词条，type是类型，translation表示翻译结果，quarry表示出处，example是使用示例",
+    "//use_version": "version表示使用的define.json版本，一般来说是要比当前文件里面的版本号大于或等于才行"
+  }
+}
