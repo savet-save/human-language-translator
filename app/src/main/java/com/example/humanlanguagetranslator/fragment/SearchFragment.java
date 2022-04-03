@@ -62,7 +62,7 @@ public class SearchFragment extends Fragment {
             public boolean onQueryTextSubmit(String query) {
                 List<Word> filterResult = Dictionary.getInstance().getFilterResult(query);
                 for (Word word : filterResult) {
-                    Utils.logDebug(TAG, "search result : " + word.getTitle());
+                    Utils.logDebug(TAG, "search result : " + word.getContent());
                 }
                 Intent intent = null;
                 if (filterResult.size() == 1) {

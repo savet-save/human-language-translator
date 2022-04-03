@@ -196,7 +196,7 @@ public class WordListFragment extends Fragment {
                 return;
             }
             mWord = word;
-            mTextView.setText(mWord.getTitle() == null ? "is null?" : mWord.getTitle());
+            mTextView.setText(mWord.getContent() == null ? "is null?" : mWord.getContent());
             mId = id;
         }
 

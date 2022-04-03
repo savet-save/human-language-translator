@@ -1,6 +1,5 @@
 package com.example.humanlanguagetranslator;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 import android.util.TypedValue;
@@ -22,8 +21,8 @@ public final class Utils {
     private static final String TAG = "Utils";
 
     public enum OutLogType {
-        PARAMETER_ERROR,
-        PARAMETER_WARNING
+        PARAMETER_NULL_ERROR,
+        PARAMETER_NULL_WARNING
     }
 
     public static void logDebug(String msg) {
@@ -48,10 +47,10 @@ public final class Utils {
 
     public static void outLog(String tag, OutLogType type) {
         switch (type) {
-            case PARAMETER_ERROR:
+            case PARAMETER_NULL_ERROR:
                 Log.e(tag, "Error : parameter is null");
                 break;
-            case PARAMETER_WARNING:
+            case PARAMETER_NULL_WARNING:
                 Log.d(tag, "Waring : parameter is null");
                 break;
         }

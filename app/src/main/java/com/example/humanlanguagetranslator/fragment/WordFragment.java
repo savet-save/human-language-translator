@@ -97,7 +97,7 @@ public class WordFragment extends Fragment {
             }
         });
         if (null != mWord) {
-            mWordTitle.setText(mWord.getTitle());
+            mWordTitle.setText(mWord.getContent());
         }
         return v;
     }
