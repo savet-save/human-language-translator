@@ -11,6 +11,7 @@ public final class Utils {
     /**  id */
     public static final int ID_ADD_WORD = R.id.menu_item_add_word;
     public static final int ID_SEARCH_WORD = R.id.menu_item_search_word;
+    public static final int ID_MENU_ABOUT = R.id.menu_item_about;
 
     public static final int ERROR_CONTEXT = 0;
 

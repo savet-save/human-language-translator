@@ -99,14 +99,18 @@ public class WordListFragment extends Fragment {
                 Word word = new Word();
                 Dictionary.getInstance().addWord(word);
                 dealWithSelectedCallback(word);
-                return true;
+                break;
             case Utils.ID_SEARCH_WORD:
-                Utils.logDebug(TAG, "search word");
                 Intent intent = SearchActivity.newInstance(getActivity());
                 startActivity(intent);
+                break;
+            case Utils.ID_MENU_ABOUT:
+                Utils.logDebug(TAG, "about");
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 
     @Override

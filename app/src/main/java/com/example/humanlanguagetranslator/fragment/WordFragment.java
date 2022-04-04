@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentResultListener;
 
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
@@ -39,6 +43,7 @@ public class WordFragment extends Fragment {
     private TextView mDateText;
     private SimpleDateFormat formatDate;
     private OnWordUpdatedCallback mCallback;
+    private FragmentManager mFragmentManager;
 
     public interface OnWordUpdatedCallback {
         void onWordUpdated(Word word);
@@ -47,7 +52,7 @@ public class WordFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof  OnWordUpdatedCallback) {
+        if (context instanceof OnWordUpdatedCallback) {
             mCallback = (OnWordUpdatedCallback) context;
         }
     }
@@ -66,6 +71,10 @@ public class WordFragment extends Fragment {
             UUID wordId = (UUID) arguments.getSerializable(ARGS_WORD_ID);
             mWord = Dictionary.getInstance().getWord(wordId);
         }
+        FragmentActivity activity = getActivity();
+        if (null != activity) {
+            mFragmentManager = activity.getSupportFragmentManager();
+        }
     }
 
     @Override
@@ -73,12 +82,12 @@ public class WordFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_word_details, container, false);
         mWordTitle = v.findViewById(R.id.details_word_title_text);
         // init data show format
-        formatDate = new SimpleDateFormat("yyyy '" +getString(R.string.year)
+        formatDate = new SimpleDateFormat("yyyy '" + getString(R.string.year)
                 + "' MM '" + getString(R.string.month)
                 + "' dd '" + getString(R.string.day) + "'", Locale.getDefault());
 
         // set date
-        mDateText = (TextView)v.findViewById(R.id.details_word_date);
+        mDateText = (TextView) v.findViewById(R.id.details_word_date);
         updateDateUI();
 
         // init set data button
@@ -86,14 +95,13 @@ public class WordFragment extends Fragment {
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager manager = getFragmentManager();
-                if (null != manager) {
-                    DatePickerFragment dialog = DatePickerFragment.newInstance(null);
-                    dialog.setTargetFragment(WordFragment.this, REQUEST_DATE);
-                    dialog.show(manager, DIALOG_DATE_TAG);
-                } else {
-                    Utils.outLog(TAG, "can't get FragmentManager");
+                if (null == mFragmentManager) {
+                    Utils.outLog(TAG, "can't get FragmentActivity");
+                    return;
                 }
+                DatePickerFragment dialog = DatePickerFragment.newInstance(null);
+                dialog.show(mFragmentManager, DIALOG_DATE_TAG);
+
             }
         });
         if (null != mWord) {
@@ -102,34 +110,49 @@ public class WordFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != Activity.RESULT_OK) {
-            return;
-        }
-
-        if (null == data) {
-            Utils.outLog(TAG, "onActivityResult - data is null");
-            return;
-        }
-
-        if (REQUEST_DATE == requestCode) {
-            Date date = (Date)data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-            mWord.setFirstDate(date);
-            updateDateUI();
-            updateWordListUI();
-        }
-    }
-
     private void updateWordListUI() {
         if (null != mCallback) {
             mCallback.onWordUpdated(mWord);
         }
     }
 
+    // 可见时
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (null == mFragmentManager) {
+            return;
+        }
+        Utils.logDebug(TAG, "set Fragment Result Listener : " + mWord.getId());
+        mFragmentManager.setFragmentResultListener(DatePickerFragment.REQUEST_DATE_KEY,
+                getViewLifecycleOwner(),
+                (requestKey, result) -> {
+                    if (!DatePickerFragment.REQUEST_DATE_KEY.equals(requestKey)) {
+                        Utils.logDebug(TAG, "not equals");
+                        return;
+                    }
+                    Date date = (Date) result.getSerializable(DatePickerFragment.DATE_KEY);
+                    Utils.logDebug(TAG, "date :" + date);
+                    mWord.setFirstDate(date);
+                    updateDateUI();
+                    updateWordListUI();
+                });
+    }
+
+    // 不可见时
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (null == mFragmentManager) {
+            return;
+        }
+        Utils.logDebug(TAG, "clear Fragment Result Listener : " + mWord.getId());
+        mFragmentManager.clearFragmentResultListener(DatePickerFragment.REQUEST_DATE_KEY);
+    }
+
     private void updateDateUI() {
-        mDateText.setText(formatDate.format(mWord.getFirstDate()));
+        String date = formatDate.format(mWord.getFirstDate());
+        mDateText.setText(date);
     }
 
     public static WordFragment newInstance(UUID wordId) {

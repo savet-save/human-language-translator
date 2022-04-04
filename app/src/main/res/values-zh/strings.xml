@@ -15,4 +15,5 @@
     <string name="search_word">查询单词</string>
     <string name="clean_search">清除查询历史</string>
     <string name="cancel_search">取消</string>
+    <string name="about_info">关于</string>
 </resources>
