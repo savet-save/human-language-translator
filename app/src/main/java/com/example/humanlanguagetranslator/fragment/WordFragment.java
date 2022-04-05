@@ -123,7 +123,8 @@ public class WordFragment extends Fragment {
         if (null == mFragmentManager) {
             return;
         }
-        Utils.logDebug(TAG, "set Fragment Result Listener : " + mWord.getId());
+        Utils.logDebug(TAG, "set Fragment Result Listener id : "
+                + (mWord == null ? "null word" : mWord.getId()));
         mFragmentManager.setFragmentResultListener(DatePickerFragment.REQUEST_DATE_KEY,
                 getViewLifecycleOwner(),
                 (requestKey, result) -> {
@@ -146,7 +147,8 @@ public class WordFragment extends Fragment {
         if (null == mFragmentManager) {
             return;
         }
-        Utils.logDebug(TAG, "clear Fragment Result Listener : " + mWord.getId());
+        Utils.logDebug(TAG, "clear Fragment Result Listener id : "
+                + (mWord == null ? "null word" : mWord.getId()));
         mFragmentManager.clearFragmentResultListener(DatePickerFragment.REQUEST_DATE_KEY);
     }
 

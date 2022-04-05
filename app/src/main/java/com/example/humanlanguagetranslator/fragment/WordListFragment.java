@@ -20,6 +20,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,11 +40,13 @@ public class WordListFragment extends Fragment {
 
     private static final String TAG = "WordListFragment";
     private static final String ARG_WORD_LIST = "ARG_WORD_LIST";
+    private static final String SHOW_INFO_TAG = "SHOW_INFO_TAG";
 
     private RecyclerView mWordRecyclerView;
     private WordAdapter mWordAdapter;
     private OnItemSelectedCallback mOnCallback;
     private Bundle mCreateArguments;
+    private FragmentManager mFragmentManager;
 
     public interface OnItemSelectedCallback {
         void onItemSelected(Word word);
@@ -75,6 +78,8 @@ public class WordListFragment extends Fragment {
 
             //设置显示的内容
             setShowWord(mCreateArguments.getParcelableArrayList(ARG_WORD_LIST));
+
+            mFragmentManager = activity.getSupportFragmentManager();
             updateUI();
         }
         return view;
@@ -106,6 +111,8 @@ public class WordListFragment extends Fragment {
                 break;
             case Utils.ID_MENU_ABOUT:
                 Utils.logDebug(TAG, "about");
+                InfoShowFragment.newInstance(getString(R.string.about_info), getString(R.string.about_info_content))
+                        .show(mFragmentManager, SHOW_INFO_TAG);
                 break;
             default:
                 return super.onOptionsItemSelected(item);

@@ -14,6 +14,16 @@
     <string name="cancel_search">back</string>
     <string name="clean_search">clean search history</string>
     <string name="about_info">about</string>
+    <string name="about_info_content">
+        this is a \'human language translator\'\n
+        > help you translate all kinds of web into comprehensible content\n
+        > you can customize the thesaurus\n
+        > You can add/modify your own translations\n
+        > You can upload it and let others use it (not implemented yet)\n
+        Author : savet\n
+        Email address : savet_save@163.com\n
+        Github address : null\n
+    </string>
 
     <string name="app_title">translator</string>
 </resources>

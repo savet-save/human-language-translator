@@ -1,7 +1,6 @@
 package com.example.humanlanguagetranslator.fragment;
 
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
