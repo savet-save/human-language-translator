@@ -2,7 +2,6 @@ package com.example.humanlanguagetranslator.helper;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.util.JsonReader;
 
 import androidx.annotation.Nullable;
 

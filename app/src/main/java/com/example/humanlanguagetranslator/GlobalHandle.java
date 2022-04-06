@@ -2,6 +2,7 @@ package com.example.humanlanguagetranslator;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
@@ -19,15 +20,17 @@ public class GlobalHandle extends HandlerThread {
     private static final int PERIOD_TIME = 200;
     private static final int MAX_COUNT = 10;
 
-    private final Timer timer;
+    private final Timer mTimer;
 
-    private Handler mHandler;
+    private Handler mBackgroundHandler;
+    private Handler mUIHandler;
 
     private static volatile GlobalHandle instance;
 
     private GlobalHandle() {
         super(THREAD_NAME);
-        timer = new Timer();
+        mTimer = new Timer();
+        mUIHandler = new Handler(Looper.getMainLooper());
     }
 
     /**
@@ -49,51 +52,70 @@ public class GlobalHandle extends HandlerThread {
     }
 
     /**
-     * <p> get a global handle, but maybe is null </p>
+     * <p> get a global background handler, but maybe is null </p>
      * <p> Warning : need first call getInstance() later sometime(about 10ms) </p>
      *
-     * @return a handler
+     * @return background handler
      */
     @Nullable
-    public Handler getHandler() {
-        return mHandler;
+    public Handler getBackgroundHandler() {
+        return mBackgroundHandler;
     }
 
     /**
-     * post to global handle
-     *
+     * <p> Post to global Background handle </p>
+     * warning : Not use this update UI, The program may crash
      * @param runnable do something
      * @return post result
      */
-    public boolean post2Handle(Runnable runnable) {
-        if (mHandler != null) {
-            return mHandler.post(runnable);
+    public boolean post2BackgroundHandler(Runnable runnable) {
+        if (mBackgroundHandler != null) {
+            return mBackgroundHandler.post(runnable);
         }
 
         useTimerQuery(runnable);
         return true;
     }
 
+    /**
+     * get a global UI handler
+     * @return UI handler
+     */
+    @NonNull
+    public Handler getUIHandler() {
+        return mUIHandler;
+    }
+
+    /**
+     * <p> Post to global UI handle </p>
+     * <p> warning : Not execute long-running operations, freezes all UI events </p>
+     * @param runnable do something
+     * @return post result
+     */
+    public boolean post2UIHandler(Runnable runnable) {
+        return mUIHandler.post(runnable);
+    }
+
     private void useTimerQuery(Runnable runnable) {
         Utils.logDebug(TAG, "use timer!");
-        timer.schedule(new TimerTask() {
+        mTimer.schedule(new TimerTask() {
             private int count = 0;
 
             @Override
             public void run() {
                 // check run count
                 if (count > MAX_COUNT) {
-                    timer.cancel();
+                    mTimer.cancel();
                     Utils.outLog(TAG, "count out :" + MAX_COUNT);
                     return;
                 }
                 count++;
 
-                if (null == mHandler) {
+                if (null == mBackgroundHandler) {
                     return;
                 }
-                mHandler.post(runnable);
-                timer.cancel();
+                mBackgroundHandler.post(runnable);
+                mTimer.cancel();
             }
         }, DELAY_TIME, PERIOD_TIME);
     }
@@ -101,7 +123,7 @@ public class GlobalHandle extends HandlerThread {
     @Override
     protected void onLooperPrepared() {
         super.onLooperPrepared();
-        mHandler = new Handler(instance.getLooper(), new Handler.Callback() {
+        mBackgroundHandler = new Handler(instance.getLooper(), new Handler.Callback() {
             @Override
             public boolean handleMessage(@NonNull Message msg) {
                 return false;
@@ -111,7 +133,8 @@ public class GlobalHandle extends HandlerThread {
 
     @Override
     public boolean quit() {
-        mHandler = null;
+        mBackgroundHandler = null;
+        mUIHandler = null;
         return super.quit();
     }
 }

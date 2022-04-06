@@ -99,7 +99,7 @@ public class SearchHistory {
         synchronized (SearchHistory.class) {
             mHistory.add(info);
         }
-        GlobalHandle.getInstance().post2Handle(new Runnable() {
+        GlobalHandle.getInstance().post2BackgroundHandler(new Runnable() {
             @Override
             public void run() {
                 writeStoredQueryInfo();
@@ -114,7 +114,7 @@ public class SearchHistory {
         synchronized (SearchHistory.class) {
             mHistory.clear();
         }
-        GlobalHandle.getInstance().post2Handle(new Runnable() {
+        GlobalHandle.getInstance().post2BackgroundHandler(new Runnable() {
             @Override
             public void run() {
                 if (mSharedPreferences == null) {

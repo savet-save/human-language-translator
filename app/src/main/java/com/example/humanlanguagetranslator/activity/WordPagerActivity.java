@@ -12,9 +12,9 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
-import com.example.humanlanguagetranslator.fragment.WordFragment;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
+import com.example.humanlanguagetranslator.fragment.WordFragment;
 
 import java.util.List;
 import java.util.UUID;
