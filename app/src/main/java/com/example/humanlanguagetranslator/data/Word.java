@@ -3,24 +3,31 @@ package com.example.humanlanguagetranslator.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class Word implements Parcelable {
+    private static final String SYNONYM_SPLIT_REGEX = "%";
+    private static final String SYNONYM_DEFAULT_FORMAT = " ";
+
     private final UUID mId;
     private String mContent;
+    private String mSynonym;
     private WordJsonDefine.WordType mWordType;
-    private ArrayList<String> mTranslation;
-    private ArrayList<String> mQuarry;
-    private ArrayList<String> mExample;
+    private ArrayList<String> mTranslations;
+    private ArrayList<String> mQuarries;
+    private ArrayList<String> mExamples;
     private VerifiedInfo mVerifiedInfo;
     private String mAuthor;
     private ArrayList<String> mRestorers;
 
     public Word() {
         this("",
+                "",
                 WordJsonDefine.WordType.UNDEFINE,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -31,6 +38,7 @@ public class Word implements Parcelable {
     }
 
     public Word(String word,
+                String synonym,
                 WordJsonDefine.WordType wordType,
                 ArrayList<String> translation,
                 ArrayList<String> quarry,
@@ -40,10 +48,11 @@ public class Word implements Parcelable {
                 ArrayList<String> restorers) {
         mId = UUID.randomUUID();
         mContent = word;
+        mSynonym = synonym;
         mWordType = wordType;
-        mTranslation = translation;
-        mQuarry = quarry;
-        mExample = example;
+        mTranslations = translation;
+        mQuarries = quarry;
+        mExamples = example;
         mVerifiedInfo = verifiedInfo;
         mAuthor = author;
         mRestorers = restorers;
@@ -75,6 +84,16 @@ public class Word implements Parcelable {
         }
     }
 
+    public ArrayList<String> getTranslations() {
+        return mTranslations;
+    }
+
+    public void setTranslations(ArrayList<String> translations) {
+        if (null != translations) {
+            mTranslations = translations;
+        }
+    }
+
     public Date getFirstDate() {
         return mVerifiedInfo.getEarliestTime();
     }
@@ -94,13 +113,14 @@ public class Word implements Parcelable {
     protected Word(Parcel in) {
         mId = (UUID) in.readSerializable();
         mContent = in.readString();
+        mSynonym = in.readString();
         mWordType = (WordJsonDefine.WordType) in.readSerializable();
-        mTranslation = new ArrayList<>();
-        in.readList(mTranslation, List.class.getClassLoader());
-        mQuarry = new ArrayList<>();
-        in.readList(mQuarry, List.class.getClassLoader());
-        mExample = new ArrayList<>();
-        in.readList(mExample, List.class.getClassLoader());
+        mTranslations = new ArrayList<>();
+        in.readList(mTranslations, List.class.getClassLoader());
+        mQuarries = new ArrayList<>();
+        in.readList(mQuarries, List.class.getClassLoader());
+        mExamples = new ArrayList<>();
+        in.readList(mExamples, List.class.getClassLoader());
         mVerifiedInfo = in.readParcelable(VerifiedInfo.class.getClassLoader());
         mAuthor = in.readString();
         mRestorers = new ArrayList<>();
@@ -112,12 +132,107 @@ public class Word implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeSerializable(mId);
         dest.writeString(mContent);
+        dest.writeString(mSynonym);
         dest.writeSerializable(mWordType);
-        dest.writeList(mTranslation);
-        dest.writeList(mQuarry);
-        dest.writeList(mExample);
+        dest.writeList(mTranslations);
+        dest.writeList(mQuarries);
+        dest.writeList(mExamples);
         dest.writeParcelable(mVerifiedInfo, flags);
         dest.writeString(mAuthor);
         dest.writeList(mRestorers);
+    }
+
+    public String getSynonym() {
+        return mSynonym;
+    }
+
+    /**
+     *  get Format Synonym
+     * @param format default blank space
+     * @return
+     *  <p> example : format is ',' </p>
+     *  <p> Synonym1,Synonym2,Synonym3 </p>
+     */
+    public String getFormatSynonym(@Nullable String format) {
+        if (null == format) {
+            format = SYNONYM_DEFAULT_FORMAT;
+        }
+        StringBuilder builder = new StringBuilder();
+        String[] synonym = mSynonym.split(SYNONYM_SPLIT_REGEX);
+        for (int i = 0; i <synonym.length; i++) {
+            builder.append(synonym[i]);
+            if (i != synonym.length - 1) {
+                builder.append(format);
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
+     * set Synonym
+     * @param formatSynonym use '%' joint synonym, example : Synonym1%Synonym2%
+     */
+    public void setSynonym(String formatSynonym) {
+        if (null != formatSynonym) {
+            mSynonym = formatSynonym;
+        }
+    }
+
+    public WordJsonDefine.WordType getWordType() {
+        return mWordType;
+    }
+
+    public void setWordType(WordJsonDefine.WordType wordType) {
+        mWordType = wordType;
+    }
+
+    public ArrayList<String> getQuarries() {
+        return mQuarries;
+    }
+
+    public void setQuarries(ArrayList<String> quarries) {
+        if (null != quarries) {
+            mQuarries = quarries;
+        }
+    }
+
+    public ArrayList<String> getExamples() {
+        return mExamples;
+    }
+
+    public void setExamples(ArrayList<String> examples) {
+        if (null != examples) {
+            mExamples = examples;
+        }
+    }
+
+    public VerifiedInfo getVerifiedInfo() {
+        return mVerifiedInfo;
+    }
+
+    public void setVerifiedInfo(VerifiedInfo verifiedInfo) {
+        if (null != verifiedInfo) {
+            mVerifiedInfo = verifiedInfo;
+        }
+    }
+
+    public String getAuthor() {
+        return mAuthor;
+    }
+
+    public void setAuthor(String author) {
+        if (null != author) {
+            mAuthor = author;
+        }
+    }
+
+    public ArrayList<String> getRestorers() {
+        return mRestorers;
+    }
+
+    public void setRestorers(ArrayList<String> restorers) {
+        if (null != restorers) {
+            mRestorers = restorers;
+        }
     }
 }

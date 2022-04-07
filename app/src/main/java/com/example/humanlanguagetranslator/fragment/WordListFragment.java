@@ -74,7 +74,8 @@ public class WordListFragment extends Fragment {
             mWordRecyclerView = (RecyclerView) view.findViewById(R.id.word_recycler_view);
             mWordRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
             //设置每一项之间的分割线
-            mWordRecyclerView.addItemDecoration(new DividerItemDecoration(activity, DividerItemDecoration.VERTICAL));
+            mWordRecyclerView.addItemDecoration(new DividerItemDecoration(activity,
+                    DividerItemDecoration.VERTICAL));
 
             //设置显示的内容
             setShowWord(mCreateArguments.getParcelableArrayList(ARG_WORD_LIST));
@@ -189,26 +190,27 @@ public class WordListFragment extends Fragment {
     }
 
     private class WordHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private ImageView mImageView;
-        private TextView mTextView;
+        private final ImageView mImageView;
+        private final TextView mTitleView;
+        private final TextView mTranslationView;
         private Word mWord;
-        private int mId;
 
         public WordHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_word, parent, false));
-            itemView.setOnClickListener(this::onClick);
+            itemView.setOnClickListener(this);
             mImageView = (ImageView) itemView.findViewById(R.id.word_item_image);
-            mTextView = (TextView) itemView.findViewById(R.id.word_item_title_text);
+            mTitleView = (TextView) itemView.findViewById(R.id.word_item_title_text);
+            mTranslationView = (TextView) itemView.findViewById(R.id.word_item_content_text);
         }
 
-        public void bind(Word word, int id) {
+        public void bind(Word word) {
             if (word == null) {
                 Utils.outLog(TAG, "bind: word is null");
                 return;
             }
             mWord = word;
-            mTextView.setText(mWord.getContent() == null ? "is null?" : mWord.getContent());
-            mId = id;
+            mTitleView.setText(mWord.getContent() == null ? "is null?" : mWord.getContent());
+            mTranslationView.setText(Utils.getFormatString(mWord.getTranslations()));
         }
 
         @Override
@@ -243,7 +245,7 @@ public class WordListFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull WordHolder holder, int position) {
             Word word = mWords.get(position);
-            holder.bind(word, position);
+            holder.bind(word);
         }
 
         @Override

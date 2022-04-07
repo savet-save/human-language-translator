@@ -14,23 +14,23 @@
     "verified"
   ],
   "//template": {
-    "//template": "代表一个词条对象的模板，主要有以下内容，在type的值不是verified时verified-info对象可以不要",
-    "//word": "词条，必须存在",
-    "//synonym": "同义词，可选",
+    "//template": "代表一个词条对象的模板，主要有以下内容，在type的值不是verified时verified-info对象可以不填",
+    "//word": "词条，必填",
+    "//synonym": "同义词，如果有多个使用 % 分割选填",
     "//type": "表示词条的类型，取值要求为当前文件中type的其中一个key，不写则默认为undefine",
-    "//translation": "解释，可以有多个，必须存在",
-    "//quarry": "表示来源，可选",
-    "//example": "示例，可以有多个，可选",
+    "//translation": "解释，可以有多个，必填",
+    "//quarry": "表示来源，选填",
+    "//example": "示例，可以有多个，选填",
     "//verified_info": {
-      "//verified_info": "表示考证的效果消息，除了type是verified类型的情况下都可选",
+      "//verified_info": "表示考证的效果消息，除了type是verified类型的情况下都选填",
       "//verified_time": "考证的时间",
       "//earliest_time": "发现到最早使用的时间",
       "//earliest_addr": "发现的地址",
       "//quarry_addr": "出处的地址",
       "//other": "其他信息"
     },
-    "//author": "表示该词条的作者，推荐留邮箱即可，可选",
-    "//restorers": "表示该词条的修复者，可选"
+    "//author": "表示该词条的作者，推荐留邮箱即可，选填",
+    "//restorers": "表示该词条的修复者，选填"
   },
   "template": {
     "word": "",

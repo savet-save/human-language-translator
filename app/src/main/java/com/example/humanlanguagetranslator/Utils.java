@@ -5,7 +5,11 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.List;
 
 public final class Utils {
     /**  id */
@@ -47,14 +51,27 @@ public final class Utils {
     }
 
     public static void outLog(String tag, OutLogType type) {
+        String builder = getCallStack();
         switch (type) {
             case PARAMETER_NULL_ERROR:
-                Log.e(tag, "Error : parameter is null");
+                Log.e(tag, "Error : parameter is null, call stack - " + builder);
                 break;
             case PARAMETER_NULL_WARNING:
-                Log.d(tag, "Waring : parameter is null");
+                Log.d(tag, "Waring : parameter is null, call stack - " + builder);
                 break;
         }
+    }
+
+    public static String getCallStack() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 3; i < stackTrace.length; i++) {
+            builder.append(stackTrace[i].getMethodName());
+            if (i != stackTrace.length - 1) {
+                builder.append("() <- ");
+            }
+        }
+        return builder.toString();
     }
 
     public static boolean isDualPane(AppCompatActivity activity) {
@@ -96,5 +113,37 @@ public final class Utils {
     public static int dp2px(float dpValue) {
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, Resources.getSystem().getDisplayMetrics());
         return (int) ( px + 0.5f);
+    }
+
+    /**
+     * <p> get string whit format from list </p>
+     * <p> example : </p>
+     * <p> 1. this is ..... </p>
+     * <p> 2. this is ..... </p>
+     * <p> or : </p>
+     * <p> &nbsp;&nbsp;this is .... </p>
+     * @return format translation
+     */
+    @NonNull
+    public static String getFormatString(@Nullable List<String> list) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (null == list) {
+            return stringBuilder.toString();
+        }
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).isEmpty()) {
+                continue;
+            }
+            if (list.size() == 1) {
+                stringBuilder.append("  ");
+            } else {
+                stringBuilder.append(i + 1).append(". ");
+            }
+            stringBuilder.append(list.get(i));
+            if (i != (list.size() - 1)) {
+                stringBuilder.append("\n");
+            }
+        }
+        return stringBuilder.toString();
     }
 }

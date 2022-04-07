@@ -26,4 +26,7 @@
     </string>
 
     <string name="app_title">translator</string>
+
+    <string name="word_synonym">synonym</string>
+    <string name="word_type">word type</string>
 </resources>

@@ -26,4 +26,6 @@
         邮箱 : savet_save@163.com\n
         Github : null\n
     </string>
+    <string name="word_type">类别</string>
+    <string name="word_synonym">同义</string>
 </resources>

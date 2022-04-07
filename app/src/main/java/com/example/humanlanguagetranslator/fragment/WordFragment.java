@@ -21,6 +21,7 @@ import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -33,12 +34,17 @@ public class WordFragment extends Fragment {
     private static final int REQUEST_DATE = 0;
 
     private Word mWord;
-    private TextView mWordTitle;
+    private TextView mSynonymText;
     private Button mDateButton;
     private TextView mDateText;
     private SimpleDateFormat formatDate;
     private OnWordUpdatedCallback mCallback;
     private FragmentManager mFragmentManager;
+    private TextView mTypeText;
+    private TextView mTranslationText;
+    private TextView mContentText;
+    private TextView mQuarryText;
+    private TextView mExampleText;
 
     public interface OnWordUpdatedCallback {
         void onWordUpdated(Word word);
@@ -70,23 +76,25 @@ public class WordFragment extends Fragment {
         if (null != activity) {
             mFragmentManager = activity.getSupportFragmentManager();
         }
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_word_details, container, false);
-        mWordTitle = v.findViewById(R.id.details_word_title_text);
         // init data show format
         formatDate = new SimpleDateFormat("yyyy '" + getString(R.string.year)
                 + "' MM '" + getString(R.string.month)
                 + "' dd '" + getString(R.string.day) + "'", Locale.getDefault());
+    }
 
-        // set date
-        mDateText = (TextView) v.findViewById(R.id.details_word_date);
-        updateDateUI();
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_word_details, container, false);
+        mContentText = (TextView) view.findViewById(R.id.details_word_content_text);
+        mSynonymText = (TextView) view.findViewById(R.id.details_word_synonym_text);
+        mTypeText = (TextView) view.findViewById(R.id.details_word_type_text);
+        mDateText = (TextView) view.findViewById(R.id.details_word_date);
+        mTranslationText = (TextView) view.findViewById(R.id.details_word_translation_text);
+        mQuarryText = (TextView) view.findViewById(R.id.details_word_quarry_text);
+        mExampleText = (TextView) view.findViewById(R.id.details_word_example_text);
 
         // init set data button
-        mDateButton = (Button) v.findViewById(R.id.details_word_set_date);
+        mDateButton = (Button) view.findViewById(R.id.details_word_set_date);
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,10 +107,60 @@ public class WordFragment extends Fragment {
 
             }
         });
+
+        //set show data
         if (null != mWord) {
-            mWordTitle.setText(mWord.getContent());
+            setTextShowUI(mContentText, mWord.getContent(), false);
+            setTextShowUI(mSynonymText,
+                    getJointString(getString(R.string.word_synonym) + " : ", mWord.getFormatSynonym(null)),
+                    true);
+            setTextShowUI(mTypeText,
+                    getJointString(getString(R.string.word_type) + " : ", mWord.getWordType().getName()),
+                    false);
+            setTextShowUI(mTranslationText, Utils.getFormatString(mWord.getTranslations()), false);
+            setTextShowUI(mQuarryText, Utils.getFormatString(mWord.getQuarries()), true);
+            setTextShowUI(mExampleText, Utils.getFormatString(mWord.getExamples()), false);
+            updateDateUI();
         }
-        return v;
+
+        return view;
+    }
+
+    /**
+     * joint String
+     * @param hand hand
+     * @param append append
+     * @return  <p> if hand or append is null, return null </p>
+     * <p> if append is empty, return null </p>
+     * <p> other hand and append String </p>
+     */
+    @Nullable
+    private String getJointString(String hand, String append) {
+        if (null == append || null == hand) {
+            return null;
+        }
+        if (append.isEmpty()) {
+            return null;
+        }
+        return hand + append;
+    }
+
+    /**
+     *  set show text in view
+     * @param view TextView
+     * @param value view text
+     * @param isGone if value is null or empty, whether set view is gone(not visibility)
+     */
+    private void setTextShowUI(TextView view, String value, boolean isGone) {
+        if (null == view) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+            return;
+        }
+        if ((null == value || value.isEmpty()) && isGone) {
+            view.setVisibility(View.GONE);
+        } else {
+            view.setText(value);
+        }
     }
 
     private void updateWordListUI() {
@@ -149,7 +207,9 @@ public class WordFragment extends Fragment {
 
     private void updateDateUI() {
         String date = formatDate.format(mWord.getFirstDate());
-        mDateText.setText(date);
+        if (mDateText != null) {
+            mDateText.setText(date);
+        }
     }
 
     public static WordFragment newInstance(UUID wordId) {

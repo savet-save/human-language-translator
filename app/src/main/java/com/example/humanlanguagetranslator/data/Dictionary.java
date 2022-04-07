@@ -27,6 +27,7 @@ public class Dictionary {
 
     private static volatile Dictionary sDictionary;
 
+    private static final Object wordCacheLock = new Object();
     private final List<Word> mWords;
 
     public static Dictionary getInstance() {
@@ -65,7 +66,7 @@ public class Dictionary {
                 Utils.logDebug(TAG, defineJson.toString());
                 JSONArray jsonArray = defineJson.getJSONArray(wordsName.getString(i));
                 for (int j = 0; j < jsonArray.length(); j++) {
-                    mWords.add(parseWord(jsonArray.getJSONObject(j)));
+                    addWord(parseWord(jsonArray.getJSONObject(j)));
                 }
             }
         } catch (JSONException e) {
@@ -73,11 +74,13 @@ public class Dictionary {
         }
     }
 
-    @NonNull
+    @Nullable
     private Word parseWord(JSONObject wordJson) {
         try {
             Utils.logDebug(TAG, wordJson.toString());
             String word = wordJson.getString(WordJsonDefine.Explain.WORD_KEY);
+
+            String synonym = wordJson.getString(WordJsonDefine.Explain.SYNONYM_KEY);
 
             String typeString = wordJson.getString(WordJsonDefine.Explain.TYPE_KEY);
             WordJsonDefine.WordType wordType = WordJsonDefine.WordType.getWordType(typeString);
@@ -107,11 +110,12 @@ public class Dictionary {
             ArrayList<String> restorers = JsonHelp.getArrayListWithString(wordJson,
                     WordJsonDefine.Explain.RESTORERS_KEY);
 
-            return new Word(word, wordType, translation, quarry, example, verifiedInfo, author, restorers);
+            return new Word(word, synonym, wordType, translation,
+                    quarry, example, verifiedInfo, author, restorers);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return new Word();
+        return null;
     }
 
     private void parseWordDefine(Context context) {
@@ -207,11 +211,17 @@ public class Dictionary {
         return NOT_FOUND_POSITION;
     }
 
-    public void addWord(Word word) {
+    /**
+     * add word to cache
+     * @param word added word
+     */
+    public void addWord(@Nullable Word word) {
         if (null == word) {
             return;
         }
-        mWords.add(word);
+        synchronized (wordCacheLock) {
+            mWords.add(word);
+        }
     }
 
     public void updateWord(Word word) {
@@ -220,7 +230,9 @@ public class Dictionary {
         }
         for (int i = 0; i < mWords.size(); i++) {
             if (mWords.get(i).getId().equals(word.getId())) {
-                mWords.set(i, word);
+                synchronized (wordCacheLock) {
+                    mWords.set(i, word);
+                }
             }
         }
     }

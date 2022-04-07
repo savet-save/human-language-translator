@@ -34,7 +34,10 @@ public class JsonHelp {
         try {
             JSONArray jsonArray = jsonObject.getJSONArray(arrayKey);
             for (int i = 0; i < jsonArray.length(); i++) {
-                arrayList.add(jsonArray.getString(i));
+                String value = jsonArray.getString(i);
+                if (!value.isEmpty()) {
+                    arrayList.add(value);
+                }
             }
         } catch (JSONException e) {
             Utils.outLog(TAG, "warning : can't get json array, key : " + arrayKey + "\n"
