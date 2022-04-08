@@ -4,10 +4,6 @@
     <string name="date_picker_title">最早发生的日期</string>
     <string name="date_select_date">选择最早日期</string>
 
-    <string name="year">年</string>
-    <string name="month">月</string>
-    <string name="day">日</string>
-
     <string name="add_word">新的单词</string>
     <string name="change_word">修改单词</string>
 
@@ -26,6 +22,14 @@
         邮箱 : savet_save@163.com\n
         Github : null\n
     </string>
-    <string name="word_type">类别</string>
-    <string name="word_synonym">同义</string>
+
+    <string name="format_word_data">%1$04d年 %2$02d月 %3$04d日</string>
+    <string name="format_word_synonym">同义：%1$s</string>
+    <string name="format_word_type">类别：%1$s</string>
+
+    <string name="verified_date">考证时间：</string>
+    <string name="earliest_date">最早时间：</string>
+    <string name="earliest_addr">最早地址：</string>
+    <string name="word_author">作者：</string>
+    <string name="word_restorers">修订者：</string>
 </resources>

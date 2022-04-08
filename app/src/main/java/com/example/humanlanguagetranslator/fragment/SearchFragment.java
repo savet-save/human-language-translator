@@ -60,21 +60,7 @@ public class SearchFragment extends Fragment {
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                List<Word> filterResult = Dictionary.getInstance().getFilterResult(query);
-                for (Word word : filterResult) {
-                    Utils.logDebug(TAG, "search result : " + word.getContent());
-                }
-                Intent intent = null;
-                if (filterResult.size() == 1) {
-                    intent = WordPagerActivity.newIntent(getActivity(), filterResult.get(0).getId());
-                    Utils.logDebug(TAG, "start word pager");
-                } else {
-                    intent = WordListActivity.newIntent(getActivity(), filterResult);
-                    Utils.logDebug(TAG, "start word list");
-                }
-                SearchHistory.getInstance(getActivity()).putHistory(query);
-                startActivity(intent);
-                needHoldFlag = false;
+                startSearch(query);
                 return true;
             }
 
@@ -96,6 +82,24 @@ public class SearchFragment extends Fragment {
         updateUI();
 
         return view;
+    }
+
+    private void startSearch(String query) {
+        List<Word> filterResult = Dictionary.getInstance().getFilterResult(query);
+        for (Word word : filterResult) {
+            Utils.logDebug(TAG, "search result : " + word.getContent());
+        }
+        Intent intent = null;
+        if (filterResult.size() == 1) {
+            intent = WordPagerActivity.newIntent(getActivity(), filterResult.get(0).getId());
+            Utils.logDebug(TAG, "start word pager");
+        } else {
+            intent = WordListActivity.newIntent(getActivity(), filterResult);
+            Utils.logDebug(TAG, "start word list");
+        }
+        SearchHistory.getInstance(getActivity()).putHistory(query);
+        startActivity(intent);
+        needHoldFlag = false;
     }
 
     @Override
@@ -152,6 +156,12 @@ public class SearchFragment extends Fragment {
 
         public void bind(String history) {
             mButton.setText(history);
+            mButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startSearch(history);
+                }
+            });
         }
     }
 

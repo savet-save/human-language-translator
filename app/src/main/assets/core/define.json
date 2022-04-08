@@ -26,7 +26,6 @@
       "//verified_time": "考证的时间",
       "//earliest_time": "发现到最早使用的时间",
       "//earliest_addr": "发现的地址",
-      "//quarry_addr": "出处的地址",
       "//other": "其他信息"
     },
     "//author": "表示该词条的作者，推荐留邮箱即可，选填",
@@ -51,7 +50,6 @@
       "verified_time": "",
       "earliest_time": "",
       "earliest_addr": "",
-      "quarry_addr": "",
       "other": ""
     },
     "author": "",

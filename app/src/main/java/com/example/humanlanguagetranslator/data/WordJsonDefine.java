@@ -101,7 +101,6 @@ public class WordJsonDefine {
         public static final String VERIFIED_TIME_KEY = "verified_time";
         public static final String EARLIEST_TIME_KEY = "earliest_time";
         public static final String EARLIEST_ADDR_KEY = "earliest_addr";
-        public static final String QUARRY_ADDR_KEY = "quarry_addr";
         public static final String OTHER_KEY = "other";
 
         public static final String AUTHOR_KEY = "author";

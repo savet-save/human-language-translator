@@ -4,10 +4,6 @@
     <string name="date_picker_title">The date of earliest discovery</string>
     <string name="date_select_date">Select the earliest date</string>
 
-    <string name="year">year</string>
-    <string name="month">month</string>
-    <string name="day">day</string>
-
     <string name="add_word">create new word</string>
     <string name="change_word">change word</string>
     <string name="search_word">search word</string>
@@ -27,6 +23,13 @@
 
     <string name="app_title">translator</string>
 
-    <string name="word_synonym">synonym</string>
-    <string name="word_type">word type</string>
+    <string name="format_word_synonym">synonym : %1$s</string>
+    <string name="format_word_type">type : %1$s</string>
+    <string name="format_word_data">%1$04d year %2$02d mount %3$02d day</string>
+
+    <string name="verified_date">"Verified date : "</string>
+    <string name="earliest_date">"Earliest date : "</string>
+    <string name="earliest_addr">"earliest address : "</string>
+    <string name="word_author">"author : "</string>
+    <string name="word_restorers">"restorers : "</string>
 </resources>

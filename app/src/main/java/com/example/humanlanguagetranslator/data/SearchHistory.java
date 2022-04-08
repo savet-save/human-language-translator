@@ -26,7 +26,7 @@ public class SearchHistory {
 
     public static SearchHistory getInstance(Context context) {
         if (sSearchHistory == null) {
-            synchronized (Dictionary.class) {
+            synchronized (SearchHistory.class) {
                 if (sSearchHistory == null) {
                     sSearchHistory = new SearchHistory(context);
                 }
@@ -97,6 +97,11 @@ public class SearchHistory {
             return;
         }
         synchronized (SearchHistory.class) {
+            for (String history : mHistory) {
+                if (history.equals(info)) {
+                    return;
+                }
+            }
             mHistory.add(info);
         }
         GlobalHandle.getInstance().post2BackgroundHandler(new Runnable() {

@@ -94,16 +94,6 @@ public class Word implements Parcelable {
         }
     }
 
-    public Date getFirstDate() {
-        return mVerifiedInfo.getEarliestTime();
-    }
-
-    public void setFirstDate(Date firstDate) {
-        if (null != firstDate) {
-            mVerifiedInfo.setEarliestTime(firstDate);
-        }
-    }
-
     @Override
     public int describeContents() {
         return 0;

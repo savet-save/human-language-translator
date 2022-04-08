@@ -101,9 +101,8 @@ public class Dictionary {
             Date earliestDate = JsonHelp.getDate(verifiedInfoJson,
                     WordJsonDefine.Explain.EARLIEST_TIME_KEY);
             String earliestAddr = verifiedInfoJson.getString(WordJsonDefine.Explain.EARLIEST_ADDR_KEY);
-            String quarryAddr = verifiedInfoJson.getString(WordJsonDefine.Explain.QUARRY_ADDR_KEY);
             String other = verifiedInfoJson.getString(WordJsonDefine.Explain.OTHER_KEY);
-            VerifiedInfo verifiedInfo = new VerifiedInfo(verifiedDate, earliestDate, earliestAddr, quarryAddr, other);
+            VerifiedInfo verifiedInfo = new VerifiedInfo(verifiedDate, earliestDate, earliestAddr, other, true);
 
             String author = wordJson.getString(WordJsonDefine.Explain.AUTHOR_KEY);
 
@@ -175,7 +174,6 @@ public class Dictionary {
             WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.VERIFIED_TIME_KEY);
             WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.EARLIEST_TIME_KEY);
             WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.EARLIEST_ADDR_KEY);
-            WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.QUARRY_ADDR_KEY);
             WordJsonDefine.setExplainFromJson(verifiedInfo, WordJsonDefine.Explain.OTHER_KEY);
         } catch (JSONException e) {
             e.printStackTrace();

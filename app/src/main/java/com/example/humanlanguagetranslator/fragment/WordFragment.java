@@ -18,12 +18,11 @@ import androidx.fragment.app.FragmentManager;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
+import com.example.humanlanguagetranslator.data.VerifiedInfo;
 import com.example.humanlanguagetranslator.data.Word;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
 
 public class WordFragment extends Fragment {
@@ -31,13 +30,10 @@ public class WordFragment extends Fragment {
     private static final String TAG = "WordFragment";
     private static final String DIALOG_DATE_TAG = "DialogDate";
 
-    private static final int REQUEST_DATE = 0;
-
     private Word mWord;
     private TextView mSynonymText;
     private Button mDateButton;
-    private TextView mDateText;
-    private SimpleDateFormat formatDate;
+    private TextView mVerifiedTimeText;
     private OnWordUpdatedCallback mCallback;
     private FragmentManager mFragmentManager;
     private TextView mTypeText;
@@ -45,6 +41,11 @@ public class WordFragment extends Fragment {
     private TextView mContentText;
     private TextView mQuarryText;
     private TextView mExampleText;
+    private TextView mEarliestDateText;
+    private TextView mEarliestAddrText;
+    private TextView mVerifiedOtherText;
+    private TextView mAuthorText;
+    private TextView mRestorersText;
 
     public interface OnWordUpdatedCallback {
         void onWordUpdated(Word word);
@@ -76,10 +77,6 @@ public class WordFragment extends Fragment {
         if (null != activity) {
             mFragmentManager = activity.getSupportFragmentManager();
         }
-        // init data show format
-        formatDate = new SimpleDateFormat("yyyy '" + getString(R.string.year)
-                + "' MM '" + getString(R.string.month)
-                + "' dd '" + getString(R.string.day) + "'", Locale.getDefault());
     }
 
     @Override
@@ -88,10 +85,15 @@ public class WordFragment extends Fragment {
         mContentText = (TextView) view.findViewById(R.id.details_word_content_text);
         mSynonymText = (TextView) view.findViewById(R.id.details_word_synonym_text);
         mTypeText = (TextView) view.findViewById(R.id.details_word_type_text);
-        mDateText = (TextView) view.findViewById(R.id.details_word_date);
         mTranslationText = (TextView) view.findViewById(R.id.details_word_translation_text);
         mQuarryText = (TextView) view.findViewById(R.id.details_word_quarry_text);
         mExampleText = (TextView) view.findViewById(R.id.details_word_example_text);
+        mVerifiedTimeText = (TextView) view.findViewById(R.id.details_word_verified_date_text);
+        mEarliestDateText = (TextView) view.findViewById(R.id.details_word_earliest_date_text);
+        mEarliestAddrText = (TextView) view.findViewById(R.id.details_word_earliest_addr_text);
+        mVerifiedOtherText = (TextView) view.findViewById(R.id.details_word_verified_other_text);
+        mAuthorText = (TextView) view.findViewById(R.id.details_word_author_text);
+        mRestorersText = (TextView) view.findViewById(R.id.details_word_restorers_text);
 
         // init set data button
         mDateButton = (Button) view.findViewById(R.id.details_word_set_date);
@@ -109,58 +111,28 @@ public class WordFragment extends Fragment {
         });
 
         //set show data
-        if (null != mWord) {
-            setTextShowUI(mContentText, mWord.getContent(), false);
-            setTextShowUI(mSynonymText,
-                    getJointString(getString(R.string.word_synonym) + " : ", mWord.getFormatSynonym(null)),
-                    true);
-            setTextShowUI(mTypeText,
-                    getJointString(getString(R.string.word_type) + " : ", mWord.getWordType().getName()),
-                    false);
-            setTextShowUI(mTranslationText, Utils.getFormatString(mWord.getTranslations()), false);
-            setTextShowUI(mQuarryText, Utils.getFormatString(mWord.getQuarries()), true);
-            setTextShowUI(mExampleText, Utils.getFormatString(mWord.getExamples()), false);
-            updateDateUI();
-        }
+        updateAllUI();
 
         return view;
     }
 
     /**
-     * joint String
-     * @param hand hand
-     * @param append append
-     * @return  <p> if hand or append is null, return null </p>
-     * <p> if append is empty, return null </p>
-     * <p> other hand and append String </p>
-     */
-    @Nullable
-    private String getJointString(String hand, String append) {
-        if (null == append || null == hand) {
-            return null;
-        }
-        if (append.isEmpty()) {
-            return null;
-        }
-        return hand + append;
-    }
-
-    /**
-     *  set show text in view
-     * @param view TextView
-     * @param value view text
-     * @param isGone if value is null or empty, whether set view is gone(not visibility)
+     * set show text in view
+     *
+     * @param view   TextView
+     * @param value  view text
+     * @param isGone if true set view is gone(not visibility)
      */
     private void setTextShowUI(TextView view, String value, boolean isGone) {
         if (null == view) {
             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
             return;
         }
-        if ((null == value || value.isEmpty()) && isGone) {
+        if (isGone) {
             view.setVisibility(View.GONE);
-        } else {
-            view.setText(value);
         }
+        view.setText(value);
+
     }
 
     private void updateWordListUI() {
@@ -187,8 +159,8 @@ public class WordFragment extends Fragment {
                     }
                     Date date = (Date) result.getSerializable(DatePickerFragment.DATE_KEY);
                     Utils.logDebug(TAG, "date :" + date);
-                    mWord.setFirstDate(date);
-                    updateDateUI();
+                    mWord.getVerifiedInfo().setVerifiedTime(date);
+                    updateAllUI();
                     updateWordListUI();
                 });
     }
@@ -205,11 +177,61 @@ public class WordFragment extends Fragment {
         mFragmentManager.clearFragmentResultListener(DatePickerFragment.REQUEST_DATE_KEY);
     }
 
-    private void updateDateUI() {
-        String date = formatDate.format(mWord.getFirstDate());
-        if (mDateText != null) {
-            mDateText.setText(date);
+    private void updateAllUI() {
+        if (null == mWord) {
+            Utils.logDebug(TAG, "update UI fail : mWord is null");
+            return;
         }
+        setTextShowUI(mContentText, mWord.getContent(), false);
+
+        String formatSynonym = mWord.getFormatSynonym(null);
+        String synonym = getString(R.string.format_word_synonym, formatSynonym);
+        setTextShowUI(mSynonymText, synonym, Utils.isEmptyString(formatSynonym));
+        Utils.logDebug(TAG, "synonym :" + synonym);
+
+        String type = getString(R.string.format_word_type, mWord.getWordType().getName());
+        setTextShowUI(mTypeText, type, false);
+
+        setTextShowUI(mTranslationText, Utils.getFormatString(mWord.getTranslations()), false);
+
+        String quarries = Utils.getFormatString(mWord.getQuarries());
+        setTextShowUI(mQuarryText, quarries, Utils.isEmptyString(quarries));
+        setTextShowUI(mExampleText, Utils.getFormatString(mWord.getExamples()), false);
+
+        VerifiedInfo verifiedInfo = mWord.getVerifiedInfo();
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(verifiedInfo.getVerifiedTime());
+        String verifiedDate = getString(R.string.format_word_data,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        Utils.logDebug(TAG, "verifiedDate :" + verifiedDate + " valid : " + verifiedInfo.isValid());
+        setTextShowUI(mVerifiedTimeText, getString(R.string.verified_date) + verifiedDate,
+                !verifiedInfo.isValid());
+
+        calendar.setTime(verifiedInfo.getEarliestTime());
+        String earliestDate = getString(R.string.format_word_data,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        setTextShowUI(mEarliestDateText, getString(R.string.earliest_date) + earliestDate,
+                !verifiedInfo.isValid());
+
+        String earliestAddr = verifiedInfo.getEarliestAddr();
+        setTextShowUI(mEarliestAddrText, getString(R.string.earliest_addr) + earliestAddr,
+                Utils.isEmptyString(earliestAddr));
+
+        String verifiedOther = verifiedInfo.getOther();
+        setTextShowUI(mVerifiedOtherText, verifiedOther, Utils.isEmptyString(verifiedOther));
+
+        String author = mWord.getAuthor();
+        setTextShowUI(mAuthorText, getString(R.string.word_author) + author,
+                Utils.isEmptyString(author));
+
+        String restorers = Utils.getFormatString(mWord.getRestorers());
+        setTextShowUI(mRestorersText, getString(R.string.word_restorers) + restorers,
+                Utils.isEmptyString(restorers));
     }
 
     public static WordFragment newInstance(UUID wordId) {

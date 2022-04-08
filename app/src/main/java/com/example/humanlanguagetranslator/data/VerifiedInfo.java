@@ -6,18 +6,20 @@ import android.os.Parcelable;
 import java.util.Date;
 
 public class VerifiedInfo implements Parcelable {
+    private final static int VALID_VALUE = 1;
+    private final static int INVALID_VALUE = 1;
     private Date mVerifiedTime;
     private Date mEarliestTime;
     private String mEarliestAddr;
-    private String mQuarryAddr;
     private String mOther;
+    private int isValidFlag;
 
     protected VerifiedInfo(Parcel in) {
         mVerifiedTime = (Date) in.readSerializable();
         mVerifiedTime = (Date) in.readSerializable();
         mEarliestAddr = in.readString();
-        mQuarryAddr = in.readString();
         mOther = in.readString();
+        isValidFlag = in.readInt();
     }
 
     public static final Creator<VerifiedInfo> CREATOR = new Creator<VerifiedInfo>() {
@@ -44,44 +46,43 @@ public class VerifiedInfo implements Parcelable {
         return mEarliestAddr;
     }
 
-    public String getQuarryAddr() {
-        return mQuarryAddr;
-    }
-
     public String getOther() {
         return mOther;
     }
 
     public void setVerifiedTime(Date verifiedTime) {
-        mVerifiedTime = verifiedTime;
+        if (null != verifiedTime) {
+            mVerifiedTime = verifiedTime;
+        }
     }
 
     public void setEarliestTime(Date earliestTime) {
-        mEarliestTime = earliestTime;
+        if (null != earliestTime) {
+            mEarliestTime = earliestTime;
+        }
     }
 
     public void setEarliestAddr(String earliestAddr) {
-        mEarliestAddr = earliestAddr;
+        if (null != earliestAddr) {
+            mEarliestAddr = earliestAddr;
+        }
     }
 
-    public void setQuarryAddr(String quarryAddr) {
-        mQuarryAddr = quarryAddr;
-    }
 
     public void setOther(String other) {
         mOther = other;
     }
 
     public VerifiedInfo() {
-        this(new Date(), new Date(), "", "", "");
+        this(new Date(), new Date(), "",  "", false);
     }
 
-    public VerifiedInfo(Date verifiedTime, Date earliestTime, String earliestAddr, String quarryAddr, String other) {
+    public VerifiedInfo(Date verifiedTime, Date earliestTime, String earliestAddr, String other, boolean valid) {
         this.mVerifiedTime = verifiedTime;
         this.mEarliestTime = earliestTime;
         this.mEarliestAddr = earliestAddr;
-        this.mQuarryAddr = quarryAddr;
         this.mOther = other;
+        this.isValidFlag = (valid ? VALID_VALUE : INVALID_VALUE);
     }
 
     @Override
@@ -89,12 +90,20 @@ public class VerifiedInfo implements Parcelable {
         return 0;
     }
 
+    public boolean isValid() {
+        return (this.isValidFlag == INVALID_VALUE);
+    }
+
+    public void setValid(boolean valid) {
+        this.isValidFlag = (valid ? VALID_VALUE : INVALID_VALUE);
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeSerializable(mVerifiedTime);
         dest.writeSerializable(mEarliestTime);
         dest.writeString(mEarliestAddr);
-        dest.writeString(mQuarryAddr);
         dest.writeString(mOther);
+        dest.writeInt(isValidFlag);
     }
 }

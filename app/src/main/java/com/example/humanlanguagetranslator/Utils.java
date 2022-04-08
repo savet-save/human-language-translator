@@ -146,4 +146,14 @@ public final class Utils {
         }
         return stringBuilder.toString();
     }
+
+    /**
+     * Checks if the string is empty
+     * @param s string
+     * @return <p> true : s is null or empty </>
+     * <p> false : not is empty </p>
+     */
+    public static boolean isEmptyString(String s) {
+        return (null == s || s.isEmpty());
+    }
 }
