@@ -1,8 +1,8 @@
 package com.example.humanlanguagetranslator.data;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.humanlanguagetranslator.Utils;
@@ -15,7 +15,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -27,8 +29,11 @@ public class Dictionary {
 
     private static volatile Dictionary sDictionary;
 
-    private static final Object wordCacheLock = new Object();
+    private static final Object WORD_CACHE_LOCK = new Object();
     private final List<Word> mWords;
+
+    private static final Object BITMAPS_CACHE_LOCK = new Object();
+    private final Map<UUID, Bitmap> mBitmaps;
 
     public static Dictionary getInstance() {
         if (sDictionary == null) {
@@ -43,6 +48,7 @@ public class Dictionary {
 
     private Dictionary() {
         mWords = new ArrayList<>();
+        mBitmaps = new HashMap<>();
     }
 
     public void init(Context context) {
@@ -109,8 +115,10 @@ public class Dictionary {
             ArrayList<String> restorers = JsonHelp.getArrayListWithString(wordJson,
                     WordJsonDefine.Explain.RESTORERS_KEY);
 
+            String pictureLink = wordJson.getString(WordJsonDefine.Explain.PICTURE_LINK);
+
             return new Word(word, synonym, wordType, translation,
-                    quarry, example, verifiedInfo, author, restorers);
+                    quarry, example, verifiedInfo, author, restorers, pictureLink);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -167,6 +175,7 @@ public class Dictionary {
         WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.EXAMPLE_KEY);
         WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.AUTHOR_KEY);
         WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.RESTORERS_KEY);
+        WordJsonDefine.setExplainFromJson(templateExplain, WordJsonDefine.Explain.PICTURE_LINK);
         try {
             JSONObject verifiedInfo = templateExplain.getJSONObject(
                     WordJsonDefine.getExplainAnyKey(WordJsonDefine.Explain.VERIFIED_INFO_KEY));
@@ -217,7 +226,7 @@ public class Dictionary {
         if (null == word) {
             return;
         }
-        synchronized (wordCacheLock) {
+        synchronized (WORD_CACHE_LOCK) {
             mWords.add(word);
         }
     }
@@ -228,7 +237,7 @@ public class Dictionary {
         }
         for (int i = 0; i < mWords.size(); i++) {
             if (mWords.get(i).getId().equals(word.getId())) {
-                synchronized (wordCacheLock) {
+                synchronized (WORD_CACHE_LOCK) {
                     mWords.set(i, word);
                 }
             }
@@ -244,5 +253,26 @@ public class Dictionary {
             }
         }
         return result;
+    }
+
+    public void putImage(UUID uuid, Bitmap bitmap) {
+        if (null == uuid || null == bitmap) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+            return;
+        }
+        synchronized (BITMAPS_CACHE_LOCK) {
+            mBitmaps.put(uuid, bitmap);
+        }
+    }
+
+    @Nullable
+    public Bitmap getImage(UUID uuid) {
+        if (null == uuid) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+            return null;
+        }
+        synchronized (BITMAPS_CACHE_LOCK) {
+            return mBitmaps.get(uuid);
+        }
     }
 }

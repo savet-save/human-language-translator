@@ -105,6 +105,7 @@ public class WordJsonDefine {
 
         public static final String AUTHOR_KEY = "author";
         public static final String RESTORERS_KEY = "restorers";
+        public static final String PICTURE_LINK = "picture_link";
 
         // other explain
         public static final String OTHER_EXPLAIN_KEY = "other_explain";

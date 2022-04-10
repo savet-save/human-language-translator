@@ -3,6 +3,9 @@ package com.example.humanlanguagetranslator.fragment;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -25,12 +28,15 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.humanlanguagetranslator.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.activity.SearchActivity;
 import com.example.humanlanguagetranslator.activity.WordListActivity;
+import com.example.humanlanguagetranslator.callback.DownLoaderCallback;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
+import com.example.humanlanguagetranslator.helper.NetWorkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,6 +174,7 @@ public class WordListFragment extends Fragment {
     /**
      * set list show content
      * <p> Warning : Must be call after mWordRecyclerView init </p>
+     *
      * @param words show words, show default words if is null
      */
     public void setShowWord(@Nullable List<Word> words) {
@@ -203,7 +210,7 @@ public class WordListFragment extends Fragment {
             mTranslationView = (TextView) itemView.findViewById(R.id.word_item_content_text);
         }
 
-        public void bind(Word word) {
+        public void bind(Word word, @Nullable Bitmap bitmap) {
             if (word == null) {
                 Utils.outLog(TAG, "bind: word is null");
                 return;
@@ -211,6 +218,52 @@ public class WordListFragment extends Fragment {
             mWord = word;
             mTitleView.setText(mWord.getContent() == null ? "is null?" : mWord.getContent());
             mTranslationView.setText(Utils.getFormatString(mWord.getTranslations()));
+            if (bitmap != null) {
+                mImageView.setImageBitmap(bitmap);
+            } else {
+                requestNewImage();
+            }
+        }
+
+        private void requestNewImage() {
+            GlobalHandler.getInstance().post2BackgroundHandler(new Runnable() {
+                @Override
+                public void run() {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            TrafficStats.setThreadStatsTag(1); // for clean detectAll() log
+                            String imageUrl = mWord.getPictureLink();
+                            if (Utils.isEmptyString(imageUrl)) {
+                                return;
+                            }
+                            NetWorkHelper.requestUrlData(imageUrl,
+                                    new DownLoaderCallback() {
+                                        @Override
+                                        public void onFailure(Exception e) {
+                                            Utils.logDebug(TAG, "image request fail");
+                                        }
+
+                                        @Override
+                                        public void onResponse(byte[] data) {
+                                            Utils.logDebug(TAG, "image onResponse");
+                                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                                            if (null == bitmap) {
+                                                Utils.outLog(TAG, "decode bitmap fail from Byte Array");
+                                            }
+                                            Dictionary.getInstance().putImage(mWord.getId(), bitmap);
+                                            GlobalHandler.getInstance().post2UIHandler(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    mImageView.setImageBitmap(bitmap);
+                                                }
+                                            });
+                                        }
+                                    });
+                        }
+                    }).start();
+                }
+            });
         }
 
         @Override
@@ -245,7 +298,8 @@ public class WordListFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull WordHolder holder, int position) {
             Word word = mWords.get(position);
-            holder.bind(word);
+            Bitmap bitmap = Dictionary.getInstance().getImage(word.getId());
+            holder.bind(word, bitmap);
         }
 
         @Override

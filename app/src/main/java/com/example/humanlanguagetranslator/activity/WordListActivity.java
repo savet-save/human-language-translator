@@ -8,7 +8,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.humanlanguagetranslator.GlobalHandle;
+import com.example.humanlanguagetranslator.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
@@ -40,7 +40,8 @@ public class WordListActivity extends SingleFragmentActivity
      * init application environment support
      */
     private void initEnvironment() {
-        GlobalHandle.getInstance();
+        Utils.enableStrictMode(false);
+        GlobalHandler.getInstance();
         Dictionary.getInstance().init(this);
     }
 

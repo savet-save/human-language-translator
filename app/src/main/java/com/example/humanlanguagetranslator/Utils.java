@@ -1,6 +1,7 @@
 package com.example.humanlanguagetranslator;
 
 import android.content.res.Resources;
+import android.os.StrictMode;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -12,7 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.List;
 
 public final class Utils {
-    /**  id */
+    /**
+     * id
+     */
     public static final int ID_ADD_WORD = R.id.menu_item_add_word;
     public static final int ID_SEARCH_WORD = R.id.menu_item_search_word;
     public static final int ID_MENU_ABOUT = R.id.menu_item_about;
@@ -112,7 +115,7 @@ public final class Utils {
      */
     public static int dp2px(float dpValue) {
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, Resources.getSystem().getDisplayMetrics());
-        return (int) ( px + 0.5f);
+        return (int) (px + 0.5f);
     }
 
     /**
@@ -122,6 +125,7 @@ public final class Utils {
      * <p> 2. this is ..... </p>
      * <p> or : </p>
      * <p> &nbsp;&nbsp;this is .... </p>
+     *
      * @return format translation
      */
     @NonNull
@@ -149,11 +153,25 @@ public final class Utils {
 
     /**
      * Checks if the string is empty
+     *
      * @param s string
      * @return <p> true : s is null or empty </>
      * <p> false : not is empty </p>
      */
     public static boolean isEmptyString(String s) {
         return (null == s || s.isEmpty());
+    }
+
+    public static void enableStrictMode(boolean isCloseApp) {
+        if (!isDebug()) {
+            return;
+        }
+        if (isCloseApp) {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog()
+                    .penaltyDeath().build());
+        } else {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog()
+                    .build());
+        }
     }
 }

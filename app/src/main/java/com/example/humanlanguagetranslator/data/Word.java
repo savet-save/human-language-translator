@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +23,8 @@ public class Word implements Parcelable {
     private VerifiedInfo mVerifiedInfo;
     private String mAuthor;
     private ArrayList<String> mRestorers;
+    private String mPictureLink;
+
 
     public Word() {
         this("",
@@ -34,7 +35,8 @@ public class Word implements Parcelable {
                 new ArrayList<>(),
                 new VerifiedInfo(),
                 "",
-                new ArrayList<>());
+                new ArrayList<>(),
+                "");
     }
 
     public Word(String word,
@@ -45,7 +47,8 @@ public class Word implements Parcelable {
                 ArrayList<String> example,
                 VerifiedInfo verifiedInfo,
                 String author,
-                ArrayList<String> restorers) {
+                ArrayList<String> restorers,
+                String pictureExternalLink) {
         mId = UUID.randomUUID();
         mContent = word;
         mSynonym = synonym;
@@ -56,6 +59,7 @@ public class Word implements Parcelable {
         mVerifiedInfo = verifiedInfo;
         mAuthor = author;
         mRestorers = restorers;
+        mPictureLink = pictureExternalLink;
     }
 
     public static final Creator<Word> CREATOR = new Creator<Word>() {
@@ -115,6 +119,7 @@ public class Word implements Parcelable {
         mAuthor = in.readString();
         mRestorers = new ArrayList<>();
         in.readList(mRestorers, List.class.getClassLoader());
+        mPictureLink = in.readString();
     }
 
     @Override
@@ -130,6 +135,7 @@ public class Word implements Parcelable {
         dest.writeParcelable(mVerifiedInfo, flags);
         dest.writeString(mAuthor);
         dest.writeList(mRestorers);
+        dest.writeString(mPictureLink);
     }
 
     public String getSynonym() {
@@ -223,6 +229,16 @@ public class Word implements Parcelable {
     public void setRestorers(ArrayList<String> restorers) {
         if (null != restorers) {
             mRestorers = restorers;
+        }
+    }
+
+    public String getPictureLink() {
+        return mPictureLink;
+    }
+
+    public void setPictureLink(String pictureLink) {
+        if (null != pictureLink) {
+            mPictureLink = pictureLink;
         }
     }
 }

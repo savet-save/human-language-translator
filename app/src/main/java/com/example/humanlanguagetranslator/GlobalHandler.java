@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class GlobalHandle extends HandlerThread {
+public class GlobalHandler extends HandlerThread {
 
     private static final String THREAD_NAME = "GlobalHandle";
     private static final String TAG = "GlobalHandle";
@@ -25,9 +25,9 @@ public class GlobalHandle extends HandlerThread {
     private Handler mBackgroundHandler;
     private Handler mUIHandler;
 
-    private static volatile GlobalHandle instance;
+    private static volatile GlobalHandler instance;
 
-    private GlobalHandle() {
+    private GlobalHandler() {
         super(THREAD_NAME);
         mTimer = new Timer();
         mUIHandler = new Handler(Looper.getMainLooper());
@@ -38,11 +38,11 @@ public class GlobalHandle extends HandlerThread {
      *
      * @return a GlobalHandle
      */
-    public static GlobalHandle getInstance() {
+    public static GlobalHandler getInstance() {
         if (null == instance) {
-            synchronized (GlobalHandle.class) {
+            synchronized (GlobalHandler.class) {
                 if (null == instance) {
-                    instance = new GlobalHandle();
+                    instance = new GlobalHandler();
                     instance.start();
                     instance.getLooper();
                 }

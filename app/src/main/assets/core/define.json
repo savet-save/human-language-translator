@@ -29,7 +29,8 @@
       "//other": "其他信息"
     },
     "//author": "表示该词条的作者，推荐留邮箱即可，选填",
-    "//restorers": "表示该词条的修复者，选填"
+    "//restorers": "表示该词条的修复者，选填",
+    "//picture_link": "用于展示图片的链接，png/jpg/gif皆可，可选"
   },
   "template": {
     "word": "",
@@ -55,7 +56,8 @@
     "author": "",
     "restorers": [
       ""
-    ]
+    ],
+    "picture_external_link" : ""
   },
   "//other_explain": {
     "//other_explain": "其他dictionary.json文件所使用的key的说明",
