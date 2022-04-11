@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="MaxHeightScrollView">
+        <!-- set max height -->
         <attr name="maxHeight" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="GifView">
+        <attr name="gif_src" format="reference" />
+        <attr name="decode_stream" format="boolean" />
+        <attr name="default_animation_time" format="integer" />
     </declare-styleable>
 </resources>

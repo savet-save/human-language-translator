@@ -1,5 +1,11 @@
 package com.example.humanlanguagetranslator.helper;
 
+import android.app.usage.NetworkStats;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+
 import com.example.humanlanguagetranslator.callback.DownLoaderCallback;
 
 import java.io.ByteArrayOutputStream;
@@ -17,7 +23,7 @@ public class NetWorkHelper {
      *
      * @param url url
      */
-    public static void requestUrlData(String url, DownLoaderCallback callback){
+    public static void requestUrlData(String url, DownLoaderCallback callback) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
@@ -30,6 +36,22 @@ public class NetWorkHelper {
         } catch (Exception e) {
             callback.onFailure(e);
         }
+    }
+
+    /**
+     * Verify that the network status is Available
+     */
+    public static boolean checkNetworkStatus(Context context) {
+        if (context != null) {
+            ConnectivityManager mConnectivityManager = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo mNetworkInfo = mConnectivityManager.getActiveNetworkInfo();
+            if (mNetworkInfo != null) {
+                return mNetworkInfo.isAvailable();
+            }
+        }
+        return false;
+
     }
 
     /**

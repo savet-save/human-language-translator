@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Movie;
 import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -36,7 +37,9 @@ import com.example.humanlanguagetranslator.activity.WordListActivity;
 import com.example.humanlanguagetranslator.callback.DownLoaderCallback;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
+import com.example.humanlanguagetranslator.helper.ImageHelper;
 import com.example.humanlanguagetranslator.helper.NetWorkHelper;
+import com.example.humanlanguagetranslator.view.GifView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -197,73 +200,113 @@ public class WordListFragment extends Fragment {
     }
 
     private class WordHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private static final String TAG = "WordHolder";
         private final ImageView mImageView;
+        private final GifView mGifView;
         private final TextView mTitleView;
         private final TextView mTranslationView;
         private Word mWord;
+        private ImageHelper.ImageType mImageType;
 
         public WordHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_word, parent, false));
             itemView.setOnClickListener(this);
             mImageView = (ImageView) itemView.findViewById(R.id.word_item_image);
+            mGifView = (GifView) itemView.findViewById(R.id.word_item_gif_image);
             mTitleView = (TextView) itemView.findViewById(R.id.word_item_title_text);
             mTranslationView = (TextView) itemView.findViewById(R.id.word_item_content_text);
+            mImageType = null;
         }
 
-        public void bind(Word word, @Nullable Bitmap bitmap) {
+        public void bind(Word word, @Nullable byte[] imageData) {
             if (word == null) {
                 Utils.outLog(TAG, "bind: word is null");
                 return;
             }
             mWord = word;
+            mImageType = ImageHelper.getImageType(mWord.getPictureLink());
+            if (ImageHelper.ImageType.GIF == mImageType) {
+                mGifView.setVisibility(View.VISIBLE);
+                mImageView.setVisibility(View.INVISIBLE);
+            }
             mTitleView.setText(mWord.getContent() == null ? "is null?" : mWord.getContent());
             mTranslationView.setText(Utils.getFormatString(mWord.getTranslations()));
-            if (bitmap != null) {
-                mImageView.setImageBitmap(bitmap);
+            if (imageData != null) {
+                updateImage(imageData);
             } else {
                 requestNewImage();
             }
         }
 
-        private void requestNewImage() {
-            GlobalHandler.getInstance().post2BackgroundHandler(new Runnable() {
-                @Override
-                public void run() {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            TrafficStats.setThreadStatsTag(1); // for clean detectAll() log
-                            String imageUrl = mWord.getPictureLink();
-                            if (Utils.isEmptyString(imageUrl)) {
-                                return;
-                            }
-                            NetWorkHelper.requestUrlData(imageUrl,
-                                    new DownLoaderCallback() {
-                                        @Override
-                                        public void onFailure(Exception e) {
-                                            Utils.logDebug(TAG, "image request fail");
-                                        }
-
-                                        @Override
-                                        public void onResponse(byte[] data) {
-                                            Utils.logDebug(TAG, "image onResponse");
-                                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                            if (null == bitmap) {
-                                                Utils.outLog(TAG, "decode bitmap fail from Byte Array");
-                                            }
-                                            Dictionary.getInstance().putImage(mWord.getId(), bitmap);
-                                            GlobalHandler.getInstance().post2UIHandler(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    mImageView.setImageBitmap(bitmap);
-                                                }
-                                            });
-                                        }
-                                    });
+        private class requestImage implements Runnable {
+            @Override
+            public void run() {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TrafficStats.setThreadStatsTag(1); // for clean detectAll() log
+                        // step 1. check url
+                        String imageUrl = mWord.getPictureLink();
+                        if (Utils.isEmptyString(imageUrl)) {
+                            return;
                         }
-                    }).start();
+
+                        Utils.logDebug(TAG, "image type :" + mImageType);
+                        // step 2. chek net status
+                        if (!NetWorkHelper.checkNetworkStatus(getActivity())) {
+                            Utils.outLog(TAG, "network not connect!");
+                            //TODO need add handler deal with this, request image data when network connect
+                            return;
+                        }
+                        // step 3. request image data
+                        NetWorkHelper.requestUrlData(imageUrl,
+                                new DownLoaderCallback() {
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Utils.logDebug(TAG, "image request fail");
+                                    }
+
+                                    @Override
+                                    public void onResponse(byte[] data) {
+                                        Utils.logDebug(TAG, "image onResponse");
+                                        if (mImageType == null) {
+                                            Utils.outLog(TAG, "image type is null");
+                                            return;
+                                        }
+                                        Dictionary.getInstance().putImageData(mWord.getId(), data);
+                                        updateImage(data);
+                                    }
+                                });
+                    }
+                }).start();
+            }
+        }
+
+        private void updateImage(byte[] data) {
+            if (ImageHelper.ImageType.GIF == mImageType) {
+                Movie movie = Movie.decodeByteArray(data, 0, data.length);
+                GlobalHandler.getInstance().post2UIHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        mGifView.setMovie(movie);
+                    }
+                });
+            } else {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                if (null == bitmap) {
+                    Utils.outLog(TAG, "decode bitmap fail from Byte Array");
                 }
-            });
+                GlobalHandler.getInstance().post2UIHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        mImageView.setImageBitmap(bitmap);
+                    }
+                });
+            }
+        }
+
+        private void requestNewImage() {
+            GlobalHandler.getInstance().post2BackgroundHandler(new requestImage());
         }
 
         @Override
@@ -298,8 +341,7 @@ public class WordListFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull WordHolder holder, int position) {
             Word word = mWords.get(position);
-            Bitmap bitmap = Dictionary.getInstance().getImage(word.getId());
-            holder.bind(word, bitmap);
+            holder.bind(word, Dictionary.getInstance().getImageData(word.getId()));
         }
 
         @Override

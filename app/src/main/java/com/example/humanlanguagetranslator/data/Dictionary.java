@@ -1,7 +1,6 @@
 package com.example.humanlanguagetranslator.data;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import androidx.annotation.Nullable;
 
@@ -33,7 +32,7 @@ public class Dictionary {
     private final List<Word> mWords;
 
     private static final Object BITMAPS_CACHE_LOCK = new Object();
-    private final Map<UUID, Bitmap> mBitmaps;
+    private final Map<UUID, byte[]> mImageCache;
 
     public static Dictionary getInstance() {
         if (sDictionary == null) {
@@ -48,7 +47,7 @@ public class Dictionary {
 
     private Dictionary() {
         mWords = new ArrayList<>();
-        mBitmaps = new HashMap<>();
+        mImageCache = new HashMap<>();
     }
 
     public void init(Context context) {
@@ -255,24 +254,24 @@ public class Dictionary {
         return result;
     }
 
-    public void putImage(UUID uuid, Bitmap bitmap) {
-        if (null == uuid || null == bitmap) {
+    public void putImageData(UUID uuid, byte[] imageData) {
+        if (null == uuid || null == imageData) {
             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
             return;
         }
         synchronized (BITMAPS_CACHE_LOCK) {
-            mBitmaps.put(uuid, bitmap);
+            mImageCache.put(uuid, imageData);
         }
     }
 
     @Nullable
-    public Bitmap getImage(UUID uuid) {
+    public byte[] getImageData(UUID uuid) {
         if (null == uuid) {
             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
             return null;
         }
         synchronized (BITMAPS_CACHE_LOCK) {
-            return mBitmaps.get(uuid);
+            return mImageCache.get(uuid);
         }
     }
 }
