@@ -206,7 +206,7 @@ public class WordListFragment extends Fragment {
         private final TextView mTitleView;
         private final TextView mTranslationView;
         private Word mWord;
-        private ImageHelper.ImageType mImageType;
+        private ImageHelper.requestImage mRequestImage;
 
         public WordHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_word, parent, false));
@@ -215,7 +215,6 @@ public class WordListFragment extends Fragment {
             mGifView = (GifView) itemView.findViewById(R.id.word_item_gif_image);
             mTitleView = (TextView) itemView.findViewById(R.id.word_item_title_text);
             mTranslationView = (TextView) itemView.findViewById(R.id.word_item_content_text);
-            mImageType = null;
         }
 
         public void bind(Word word, @Nullable byte[] imageData) {
@@ -224,71 +223,30 @@ public class WordListFragment extends Fragment {
                 return;
             }
             mWord = word;
-            mImageType = ImageHelper.getImageType(mWord.getPictureLink());
-            if (ImageHelper.ImageType.GIF == mImageType) {
-                mGifView.setVisibility(View.VISIBLE);
-                mImageView.setVisibility(View.INVISIBLE);
-            }
+            mRequestImage = new ImageHelper.requestImage(getActivity(), mWord.getPictureLink(), mWord.getId()) {
+                @Override
+                public void updateImage(byte[] data) {
+                    myUpdateImage(data);
+                }
+            };
             mTitleView.setText(mWord.getContent() == null ? "is null?" : mWord.getContent());
             mTranslationView.setText(Utils.getFormatString(mWord.getTranslations()));
             if (imageData != null) {
-                updateImage(imageData);
+                myUpdateImage(imageData);
             } else {
                 requestNewImage();
             }
         }
 
-        private class requestImage implements Runnable {
-            @Override
-            public void run() {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        TrafficStats.setThreadStatsTag(1); // for clean detectAll() log
-                        // step 1. check url
-                        String imageUrl = mWord.getPictureLink();
-                        if (Utils.isEmptyString(imageUrl)) {
-                            return;
-                        }
-
-                        Utils.logDebug(TAG, "image type :" + mImageType);
-                        // step 2. chek net status
-                        if (!NetWorkHelper.checkNetworkStatus(getActivity())) {
-                            Utils.outLog(TAG, "network not connect!");
-                            //TODO need add handler deal with this, request image data when network connect
-                            return;
-                        }
-                        // step 3. request image data
-                        NetWorkHelper.requestUrlData(imageUrl,
-                                new DownLoaderCallback() {
-                                    @Override
-                                    public void onFailure(Exception e) {
-                                        Utils.logDebug(TAG, "image request fail");
-                                    }
-
-                                    @Override
-                                    public void onResponse(byte[] data) {
-                                        Utils.logDebug(TAG, "image onResponse");
-                                        if (mImageType == null) {
-                                            Utils.outLog(TAG, "image type is null");
-                                            return;
-                                        }
-                                        Dictionary.getInstance().putImageData(mWord.getId(), data);
-                                        updateImage(data);
-                                    }
-                                });
-                    }
-                }).start();
-            }
-        }
-
-        private void updateImage(byte[] data) {
-            if (ImageHelper.ImageType.GIF == mImageType) {
+        private void myUpdateImage(byte[] data) {
+            if (ImageHelper.ImageType.GIF == mRequestImage.getImageType()) {
                 Movie movie = Movie.decodeByteArray(data, 0, data.length);
                 GlobalHandler.getInstance().post2UIHandler(new Runnable() {
                     @Override
                     public void run() {
                         mGifView.setMovie(movie);
+                        mGifView.setVisibility(View.VISIBLE);
+                        mImageView.setVisibility(View.INVISIBLE); // because is ConstraintLayout
                     }
                 });
             } else {
@@ -300,13 +258,15 @@ public class WordListFragment extends Fragment {
                     @Override
                     public void run() {
                         mImageView.setImageBitmap(bitmap);
+                        mImageView.setVisibility(View.VISIBLE);
+                        mGifView.setVisibility(View.INVISIBLE);// because is ConstraintLayout
                     }
                 });
             }
         }
 
         private void requestNewImage() {
-            GlobalHandler.getInstance().post2BackgroundHandler(new requestImage());
+            GlobalHandler.getInstance().post2BackgroundHandler(mRequestImage);
         }
 
         @Override

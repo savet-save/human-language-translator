@@ -3,6 +3,8 @@ package com.example.humanlanguagetranslator.helper;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import com.example.humanlanguagetranslator.Utils;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,12 +16,8 @@ public class FileHelper {
 
     /**
      * 保存文件
-     *
-     * @param bm
-     * @param fileName
-     * @throws IOException
      */
-    public static void saveFile(Bitmap bm, Bitmap.CompressFormat compressFormat, String fileName, Context context) throws IOException {
+    public static void saveFile(byte[] data, String fileName, Context context) throws IOException {
         File dirFile = new File(context.getFilesDir() + DATA_PATH_NAME);
         if (!dirFile.exists()) {
             boolean result = dirFile.mkdir();
@@ -28,10 +26,14 @@ public class FileHelper {
             }
         }
         File myCaptureFile = new File(dirFile.getPath() + fileName);
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
-        bm.compress(compressFormat, 100, bos);
-        bos.flush();
-        bos.close();
+        if (myCaptureFile.canWrite()) {
+            FileOutputStream fileOutputStream = new FileOutputStream(myCaptureFile);
+            fileOutputStream.write(data);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } else {
+            Utils.logDebug(TAG, myCaptureFile.getName() + " can't write");
+        }
     }
 
 //    private Runnable saveFileRunnable = new Runnable() {
@@ -47,14 +49,5 @@ public class FileHelper {
 //            messageHandler.sendMessage(messageHandler.obtainMessage());
 //        }
 //
-//    };
-//
-//    private Handler messageHandler = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            mSaveDialog.dismiss();
-//            Log.d(TAG, mSaveMessage);
-//            Toast.makeText(FileHelper.this, mSaveMessage, Toast.LENGTH_SHORT).show();
-//        }
 //    };
 }

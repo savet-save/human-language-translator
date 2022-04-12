@@ -2,11 +2,15 @@ package com.example.humanlanguagetranslator.fragment;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Movie;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,11 +19,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.humanlanguagetranslator.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.VerifiedInfo;
 import com.example.humanlanguagetranslator.data.Word;
+import com.example.humanlanguagetranslator.helper.ImageHelper;
+import com.example.humanlanguagetranslator.view.GifView;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -46,6 +53,9 @@ public class WordFragment extends Fragment {
     private TextView mVerifiedOtherText;
     private TextView mAuthorText;
     private TextView mRestorersText;
+    private ImageView mImageView;
+    private GifView mGifView;
+    private ImageHelper.requestImage mRequestImage;
 
     public interface OnWordUpdatedCallback {
         void onWordUpdated(Word word);
@@ -72,6 +82,37 @@ public class WordFragment extends Fragment {
         if (null != arguments) {
             UUID wordId = (UUID) arguments.getSerializable(ARGS_WORD_ID);
             mWord = Dictionary.getInstance().getWord(wordId);
+            if (mWord != null) {
+                mRequestImage = new ImageHelper.requestImage(getActivity(), mWord.getPictureLink(), mWord.getId()) {
+                    @Override
+                    public void updateImage(byte[] data) {
+                        if (ImageHelper.ImageType.GIF == getImageType()) {
+                            Movie movie = Movie.decodeByteArray(data, 0, data.length);
+                            GlobalHandler.getInstance().post2UIHandler(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mGifView.setMovie(movie);
+                                    mGifView.setVisibility(View.VISIBLE);
+                                    mImageView.setVisibility(View.GONE);
+                                }
+                            });
+                        } else {
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                            if (null == bitmap) {
+                                Utils.outLog(TAG, "decode bitmap fail from Byte Array");
+                            }
+                            GlobalHandler.getInstance().post2UIHandler(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mImageView.setImageBitmap(bitmap);
+                                    mGifView.setVisibility(View.GONE);
+                                    mImageView.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        }
+                    }
+                };
+            }
         }
         FragmentActivity activity = getActivity();
         if (null != activity) {
@@ -94,6 +135,8 @@ public class WordFragment extends Fragment {
         mVerifiedOtherText = (TextView) view.findViewById(R.id.details_word_verified_other_text);
         mAuthorText = (TextView) view.findViewById(R.id.details_word_author_text);
         mRestorersText = (TextView) view.findViewById(R.id.details_word_restorers_text);
+        mImageView = (ImageView) view.findViewById(R.id.details_word_item_image);
+        mGifView = (GifView) view.findViewById(R.id.details_word_item_gif_image);
 
         // init set data button
         mDateButton = (Button) view.findViewById(R.id.details_word_set_date);
@@ -232,6 +275,18 @@ public class WordFragment extends Fragment {
         String restorers = Utils.getFormatString(mWord.getRestorers());
         setTextShowUI(mRestorersText, getString(R.string.word_restorers) + restorers,
                 Utils.isEmptyString(restorers));
+
+
+        byte[] imageData = Dictionary.getInstance().getImageData(mWord.getId());
+        if (imageData != null) {
+            mRequestImage.updateImage(imageData);
+        } else {
+            requestNewImage();
+        }
+    }
+
+    private void requestNewImage() {
+        GlobalHandler.getInstance().post2BackgroundHandler(mRequestImage);
     }
 
     public static WordFragment newInstance(UUID wordId) {

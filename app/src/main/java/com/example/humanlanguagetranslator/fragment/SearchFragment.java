@@ -150,7 +150,7 @@ public class SearchFragment extends Fragment {
         private Button mButton;
 
         public HistoryHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.list_itme_history, parent, false));
+            super(inflater.inflate(R.layout.list_item_history, parent, false));
             mButton = itemView.findViewById(R.id.history_button);
         }
 

@@ -128,6 +128,26 @@
             android:text="@string/word_null"
             android:textSize="18sp" />
 
+        <ImageView
+            android:id="@+id/details_word_item_image"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/blue"
+            android:contentDescription="@string/word_null"
+            android:visibility="visible" />
+
+        <com.example.humanlanguagetranslator.view.GifView
+            android:id="@+id/details_word_item_gif_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible" />
+
 
         <Button
             android:id="@+id/details_word_set_date"

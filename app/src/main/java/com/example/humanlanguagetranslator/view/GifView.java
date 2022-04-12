@@ -19,13 +19,16 @@ import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 
 /**
- * from https://blog.csdn.net/lcq5211314123/article/details/43492509
- * @author qndroid
+ * can show gif
+ * base from https://blog.csdn.net/lcq5211314123/article/details/43492509
  */
 public class GifView extends View {
     private static final String TAG = "GifView";
+    public static final int DEFAULT_MOVIE_WIDTH = 100;
+    public static final int DEFAULT_MOVIE_HEIGHT = 100;
 
     private Movie mMovie;
+    private boolean isFixedSize = true;
 
     /**
      * 动画开始时间
@@ -112,6 +115,9 @@ public class GifView extends View {
     public void setMovie(Movie movie) {
         if (null != movie) {
             mMovie = movie;
+            if (!isFixedSize) {
+                requestLayout();
+            }
             invalidate();
         }
     }
@@ -179,15 +185,18 @@ public class GifView extends View {
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize;
         } else {
-
-            int desired = (int) (getPaddingLeft() + mMovie.width() + getPaddingRight());
+            isFixedSize = false;
+            int movieWidth = mMovie == null ? DEFAULT_MOVIE_WIDTH : mMovie.width();
+            int desired = (int) (getPaddingLeft() + movieWidth + getPaddingRight());
             width = Math.min(desired, widthSize);
         }
 
         if (heightMode == MeasureSpec.EXACTLY) {
             height = heightSize;
         } else {
-            int desired = (int) (getPaddingTop() + mMovie.height() + getPaddingBottom());
+            isFixedSize = false;
+            int movieHeight = mMovie == null ? DEFAULT_MOVIE_HEIGHT : mMovie.height();
+            int desired = (int) (getPaddingTop() + movieHeight + getPaddingBottom());
             height = Math.min(desired, heightSize);
         }
 

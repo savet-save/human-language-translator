@@ -11,7 +11,7 @@ import com.example.humanlanguagetranslator.R;
 
 /**
  * can set max height for ScrollView
- * from https://stackoverflow.com/questions/4054567/android-why-is-there-no-maxheight-for-a-view
+ * base from https://stackoverflow.com/questions/4054567/android-why-is-there-no-maxheight-for-a-view
  */
 
 public class MaxHeightScrollView extends ScrollView {
