@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Movie;
-import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -34,11 +33,9 @@ import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.activity.SearchActivity;
 import com.example.humanlanguagetranslator.activity.WordListActivity;
-import com.example.humanlanguagetranslator.callback.DownLoaderCallback;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
 import com.example.humanlanguagetranslator.helper.ImageHelper;
-import com.example.humanlanguagetranslator.helper.NetWorkHelper;
 import com.example.humanlanguagetranslator.view.GifView;
 
 import java.util.ArrayList;
@@ -223,7 +220,11 @@ public class WordListFragment extends Fragment {
                 return;
             }
             mWord = word;
-            mRequestImage = new ImageHelper.requestImage(getActivity(), mWord.getPictureLink(), mWord.getId()) {
+            mRequestImage = new ImageHelper.requestImage(getActivity(),
+                    mWord.getPictureLink(),
+                    mWord.getId(),
+                    mWord.getContent(),
+                    false) {
                 @Override
                 public void updateImage(byte[] data) {
                     myUpdateImage(data);

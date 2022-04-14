@@ -40,7 +40,7 @@ public class WordListActivity extends SingleFragmentActivity
      * init application environment support
      */
     private void initEnvironment() {
-        Utils.enableStrictMode(false);
+//        Utils.enableStrictMode(false);
         GlobalHandler.getInstance();
         Dictionary.getInstance().init(this);
     }

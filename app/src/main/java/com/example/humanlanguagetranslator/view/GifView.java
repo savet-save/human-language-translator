@@ -1,22 +1,21 @@
 package com.example.humanlanguagetranslator.view;
 
-import android.os.Build;
-import android.view.View;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Movie;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.Utils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 /**
  * can show gif

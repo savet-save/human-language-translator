@@ -83,33 +83,14 @@ public class WordFragment extends Fragment {
             UUID wordId = (UUID) arguments.getSerializable(ARGS_WORD_ID);
             mWord = Dictionary.getInstance().getWord(wordId);
             if (mWord != null) {
-                mRequestImage = new ImageHelper.requestImage(getActivity(), mWord.getPictureLink(), mWord.getId()) {
+                mRequestImage = new ImageHelper.requestImage(getActivity(),
+                        mWord.getPictureLink(),
+                        mWord.getId(),
+                        mWord.getContent(),
+                        false) {
                     @Override
                     public void updateImage(byte[] data) {
-                        if (ImageHelper.ImageType.GIF == getImageType()) {
-                            Movie movie = Movie.decodeByteArray(data, 0, data.length);
-                            GlobalHandler.getInstance().post2UIHandler(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mGifView.setMovie(movie);
-                                    mGifView.setVisibility(View.VISIBLE);
-                                    mImageView.setVisibility(View.GONE);
-                                }
-                            });
-                        } else {
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                            if (null == bitmap) {
-                                Utils.outLog(TAG, "decode bitmap fail from Byte Array");
-                            }
-                            GlobalHandler.getInstance().post2UIHandler(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mImageView.setImageBitmap(bitmap);
-                                    mGifView.setVisibility(View.GONE);
-                                    mImageView.setVisibility(View.VISIBLE);
-                                }
-                            });
-                        }
+                        myUpdateImage(data);
                     }
                 };
             }
@@ -117,6 +98,33 @@ public class WordFragment extends Fragment {
         FragmentActivity activity = getActivity();
         if (null != activity) {
             mFragmentManager = activity.getSupportFragmentManager();
+        }
+    }
+
+    private void myUpdateImage(byte[] data) {
+        if (ImageHelper.ImageType.GIF == mRequestImage.getImageType()) {
+            Movie movie = Movie.decodeByteArray(data, 0, data.length);
+            GlobalHandler.getInstance().post2UIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    mGifView.setMovie(movie);
+                    mGifView.setVisibility(View.VISIBLE);
+                    mImageView.setVisibility(View.GONE);
+                }
+            });
+        } else {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            if (null == bitmap) {
+                Utils.outLog(TAG, "decode bitmap fail from Byte Array");
+            }
+            GlobalHandler.getInstance().post2UIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    mImageView.setImageBitmap(bitmap);
+                    mGifView.setVisibility(View.GONE);
+                    mImageView.setVisibility(View.VISIBLE);
+                }
+            });
         }
     }
 
@@ -230,7 +238,7 @@ public class WordFragment extends Fragment {
         String formatSynonym = mWord.getFormatSynonym(null);
         String synonym = getString(R.string.format_word_synonym, formatSynonym);
         setTextShowUI(mSynonymText, synonym, Utils.isEmptyString(formatSynonym));
-        Utils.logDebug(TAG, "synonym :" + synonym);
+        Utils.logDebug(TAG, synonym);
 
         String type = getString(R.string.format_word_type, mWord.getWordType().getName());
         setTextShowUI(mTypeText, type, false);
@@ -279,7 +287,7 @@ public class WordFragment extends Fragment {
 
         byte[] imageData = Dictionary.getInstance().getImageData(mWord.getId());
         if (imageData != null) {
-            mRequestImage.updateImage(imageData);
+            myUpdateImage(imageData);
         } else {
             requestNewImage();
         }
