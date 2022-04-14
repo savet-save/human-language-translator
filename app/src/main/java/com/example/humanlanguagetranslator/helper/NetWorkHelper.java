@@ -4,15 +4,23 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.example.humanlanguagetranslator.Utils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 
 public class NetWorkHelper {
-
-    private final static String TAG = "NetWorkHelper";
+    private static final Timer mTimer = new Timer();
+    private static final String TAG = "NetWorkHelper";
     private final static int DEFAULT_CONNECT_TIMEOUT = 5000; // 5s
+    private static final int TIMER_DELAY_TIME = 500;
+    private static final int TIMER_PERIOD_TIME = 500;
+    private static TimerTask sTimerTask = null;
 
     /**
      * Get data from network
@@ -51,6 +59,34 @@ public class NetWorkHelper {
     }
 
     /**
+     * wait Network Connect, then Wakes up all threads that are waiting on this object's monitor
+     * <pre>use like :
+     *  Object syncObject = new Object;
+     *  synchronized (syncObject) {
+     *      NetWorkHelper.waitNetWorkConnect(context, syncObject);
+     *  }</pre>
+     *
+     * @param context    context
+     * @param syncObject sync Object
+     */
+    public static void waitNetworkConnect(Context context, Object syncObject) {
+        if (null == sTimerTask) {
+            synchronized (mTimer) {
+                if (null == sTimerTask) {
+                    sTimerTask = new CheckNetworkTask(context, syncObject);
+                    mTimer.schedule(sTimerTask, TIMER_DELAY_TIME, TIMER_PERIOD_TIME);
+                }
+            }
+        }
+
+        try {
+            syncObject.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Get data from stream
      *
      * @param inStream input stream
@@ -66,6 +102,29 @@ public class NetWorkHelper {
         outStream.close();
         inStream.close();
         return outStream.toByteArray();
+    }
+
+    private static class CheckNetworkTask extends TimerTask {
+
+        private final Context mContext;
+        private final Object mSyncObject;
+        private final UUID mUUID = UUID.randomUUID();
+
+        public CheckNetworkTask(Context context, Object syncObject) {
+            mContext = context;
+            mSyncObject = syncObject;
+        }
+
+        @Override
+        public void run() {
+            synchronized (mSyncObject) {
+                if (checkNetworkStatus(mContext)) {
+                    mSyncObject.notifyAll();
+                    mTimer.cancel();
+                }
+            }
+            Utils.logDebug(TAG, mUUID + " wait network connect..");
+        }
     }
 
     public static abstract class DownLoaderCallback {

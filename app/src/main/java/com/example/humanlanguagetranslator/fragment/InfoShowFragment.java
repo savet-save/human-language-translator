@@ -23,7 +23,7 @@ public class InfoShowFragment extends DialogFragment {
     private static final String DEFAULT_CONTENT = "content";
 
     @NonNull
-    public static InfoShowFragment newInstance(@Nullable String title, @Nullable String content) {
+    public static InfoShowFragment newInstance(String title, String content) {
 
         Bundle args = new Bundle();
         args.putString(ARG_TITLE, title);

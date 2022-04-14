@@ -1,7 +1,6 @@
 package com.example.humanlanguagetranslator.helper;
 
 import android.content.Context;
-import android.net.TrafficStats;
 
 import androidx.annotation.Nullable;
 
@@ -9,6 +8,8 @@ import com.example.humanlanguagetranslator.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ImageHelper {
     private static final String TAG = "ImageHelper";
@@ -41,6 +42,7 @@ public class ImageHelper {
         GIF("gif");
 
         private String mName;
+
         ImageType(String name) {
             mName = name;
         }
@@ -51,6 +53,10 @@ public class ImageHelper {
     }
 
     public static abstract class requestImage implements Runnable {
+        private static final int DEFAULT_NUMBER_THREADS = 10;
+        private static final ExecutorService executorService = Executors.newFixedThreadPool(DEFAULT_NUMBER_THREADS);
+        private static final Object syncObject = new Object();
+
         private final Context mContext;
         private final String mImageUrl;
         private final ImageType mImageType;
@@ -95,10 +101,12 @@ public class ImageHelper {
 
         @Override
         public void run() {
-            new Thread(() -> {
-                TrafficStats.setThreadStatsTag(1); // for clean detectAll() log
-                dealWithImage();
-            }).start();
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    dealWithImage();
+                }
+            });
         }
 
         private void dealWithImage() {
@@ -117,12 +125,17 @@ public class ImageHelper {
                 return;
             }
             Utils.logDebug(TAG, "image type :" + mImageType);
+
             // step 3. chek net status
             if (!NetWorkHelper.checkNetworkStatus(mContext)) {
-                Utils.outLog(TAG, "network not connect!");
-                //TODO need add handler deal with this, request image data when network connect
-                return;
+                synchronized (syncObject) {
+                    if (!NetWorkHelper.checkNetworkStatus(mContext)) {
+                        Utils.outLog(TAG, "network not connect!");
+                        NetWorkHelper.waitNetworkConnect(mContext, syncObject);
+                    }
+                }
             }
+
             // step 4. request image data
             NetWorkHelper.requestUrlData(mImageUrl,
                     new NetWorkHelper.DownLoaderCallback() {
