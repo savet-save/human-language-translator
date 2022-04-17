@@ -5,7 +5,7 @@ import android.content.res.AssetManager;
 
 import androidx.annotation.Nullable;
 
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

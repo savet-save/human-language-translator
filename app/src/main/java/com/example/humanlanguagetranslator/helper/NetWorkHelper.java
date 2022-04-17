@@ -4,7 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

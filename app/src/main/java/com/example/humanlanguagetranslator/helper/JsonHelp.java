@@ -2,7 +2,7 @@ package com.example.humanlanguagetranslator.helper;
 
 import androidx.annotation.NonNull;
 
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;

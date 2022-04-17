@@ -43,11 +43,11 @@ public class InfoShowFragment extends DialogFragment {
         String title = DEFAULT_TITLE;
         String content = DEFAULT_CONTENT;
         if (null != arguments) {
-             title = arguments.getString(ARG_TITLE);
-             content = arguments.getString(ARG_CONTENT);
+            title = arguments.getString(ARG_TITLE);
+            content = arguments.getString(ARG_CONTENT);
         }
         View view = LayoutInflater.from(fragmentActivity)
-                .inflate(R.layout.fragment_info_show, null);
+                .inflate(R.layout.dialog_info_show, null);
         infoShowInit(view, content);
         return new AlertDialog.Builder(fragmentActivity)
                 .setCancelable(true)

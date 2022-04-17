@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

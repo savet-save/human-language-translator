@@ -6,8 +6,8 @@ import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 
-import com.example.humanlanguagetranslator.GlobalHandler;
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.GlobalHandler;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

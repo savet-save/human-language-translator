@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="20dp"
+    android:layout_marginEnd="20dp"
+    android:orientation="horizontal">
+
+    <DatePicker
+        android:id="@+id/date_picker_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:calendarViewShown="false"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/text_input_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="wordContentDescription"
+        android:gravity="start"
+        android:inputType="textMultiLine"
+        android:labelFor="@+id/text_input_dialog"
+        android:minLines="8" />
+
+    <Spinner
+        android:id="@+id/select_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" />
+
+
+</LinearLayout>

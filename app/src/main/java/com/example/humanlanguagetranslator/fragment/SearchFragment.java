@@ -16,7 +16,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.activity.WordListActivity;
 import com.example.humanlanguagetranslator.activity.WordPagerActivity;
 import com.example.humanlanguagetranslator.data.Dictionary;
@@ -91,7 +91,7 @@ public class SearchFragment extends Fragment {
         }
         Intent intent = null;
         if (filterResult.size() == 1) {
-            intent = WordPagerActivity.newIntent(getActivity(), filterResult.get(0).getId());
+            intent = WordPagerActivity.newIntent(getActivity(), filterResult.get(0).getId(), false);
             Utils.logDebug(TAG, "start word pager");
         } else {
             intent = WordListActivity.newIntent(getActivity(), filterResult);

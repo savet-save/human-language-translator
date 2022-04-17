@@ -1,4 +1,4 @@
-package com.example.humanlanguagetranslator;
+package com.example.humanlanguagetranslator.util;
 
 import android.os.Handler;
 import android.os.HandlerThread;

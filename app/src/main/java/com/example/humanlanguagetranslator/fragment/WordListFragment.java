@@ -28,9 +28,9 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.humanlanguagetranslator.GlobalHandler;
+import com.example.humanlanguagetranslator.util.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.activity.SearchActivity;
 import com.example.humanlanguagetranslator.activity.WordListActivity;
 import com.example.humanlanguagetranslator.data.Dictionary;
@@ -55,7 +55,7 @@ public class WordListFragment extends Fragment {
     private FragmentManager mFragmentManager;
 
     public interface OnItemSelectedCallback {
-        void onItemSelected(Word word);
+        void onItemSelected(Word word, boolean isAddMode);
     }
 
     @Override
@@ -98,9 +98,9 @@ public class WordListFragment extends Fragment {
         updateUI();
     }
 
-    private void dealWithSelectedCallback(Word word) {
+    private void dealWithSelectedCallback(Word word, boolean isAddMode) {
         if (null != mOnCallback) {
-            mOnCallback.onItemSelected(word);
+            mOnCallback.onItemSelected(word, isAddMode);
         }
     }
 
@@ -110,7 +110,7 @@ public class WordListFragment extends Fragment {
             case Utils.ID_ADD_WORD:
                 Word word = new Word();
                 Dictionary.getInstance().addWord(word);
-                dealWithSelectedCallback(word);
+                dealWithSelectedCallback(word, true);
                 break;
             case Utils.ID_SEARCH_WORD:
                 Intent intent = SearchActivity.newInstance(getActivity());
@@ -272,7 +272,7 @@ public class WordListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            dealWithSelectedCallback(mWord);
+            dealWithSelectedCallback(mWord, false);
         }
     }
 

@@ -3,12 +3,15 @@ package com.example.humanlanguagetranslator.data;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -34,8 +37,11 @@ public class WordJsonDefine {
         UNDEFINE("undefine"),
         UNVERIFIED("unverified"),
         VERIFIED("verified");
+
         private final String mName;
-        private static Map<String, WordType> mCache = null;
+        private static Map<String, WordType> mTypeCache = null;
+        private static String[] mNameCache = null;
+
         WordType(String name) {
             this.mName = name;
         }
@@ -57,19 +63,32 @@ public class WordJsonDefine {
                 return UNDEFINE;
             }
             //init cache
-            if (null == mCache) {
-                mCache = new HashMap<>();
+            if (null == mTypeCache) {
+                mTypeCache = new HashMap<>();
                 for (WordType wordType : WordType.values()) {
-                    mCache.put(wordType.getName(), wordType);
+                    mTypeCache.put(wordType.getName(), wordType);
                 }
             }
             //get type
-            WordType wordType = mCache.get(name.toLowerCase(Locale.ROOT));
+            WordType wordType = mTypeCache.get(name.toLowerCase(Locale.ROOT));
             if (null == wordType) {
                 wordType = WordType.UNDEFINE;
                 Utils.outLog(TAG, "getWordType fail, return default :" + UNDEFINE.getName());
             }
             return wordType;
+        }
+
+        public static String[] getNames() {
+            synchronized (WordJsonDefine.class) {
+                if (null == mNameCache) {
+                    WordType[] values = WordType.values();
+                    mNameCache = new String[values.length];
+                    for (int i = 0; i < values.length; i ++) {
+                        mNameCache[i] = values[i].mName;
+                    }
+                }
+            }
+            return (String[]) Arrays.copyOf(mNameCache, mNameCache.length);
         }
     }
 

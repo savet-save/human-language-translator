@@ -3,6 +3,7 @@ package com.example.humanlanguagetranslator.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -174,6 +175,7 @@ public class Word implements Parcelable {
         }
     }
 
+    @NonNull
     public WordJsonDefine.WordType getWordType() {
         return mWordType;
     }

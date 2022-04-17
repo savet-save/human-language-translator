@@ -1,4 +1,4 @@
-package com.example.humanlanguagetranslator;
+package com.example.humanlanguagetranslator.util;
 
 import android.content.res.Resources;
 import android.os.StrictMode;
@@ -9,6 +9,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.humanlanguagetranslator.BuildConfig;
+import com.example.humanlanguagetranslator.R;
 
 import java.util.List;
 
@@ -155,7 +158,7 @@ public final class Utils {
      * Checks if the string is empty
      *
      * @param s string
-     * @return <p> true : s is null or empty </>
+     * @return <p> true : s is null or empty </p>
      * <p> false : not is empty </p>
      */
     public static boolean isEmptyString(String s) {

@@ -19,29 +19,34 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.humanlanguagetranslator.GlobalHandler;
+import com.example.humanlanguagetranslator.data.WordJsonDefine;
+import com.example.humanlanguagetranslator.util.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.VerifiedInfo;
 import com.example.humanlanguagetranslator.data.Word;
 import com.example.humanlanguagetranslator.helper.ImageHelper;
 import com.example.humanlanguagetranslator.view.GifView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class WordFragment extends Fragment {
     private static final String ARGS_WORD_ID = "args_word_id";
     private static final String TAG = "WordFragment";
-    private static final String DIALOG_DATE_TAG = "DialogDate";
+    private static final String COMMON_INPUT_DIALOG_TAG = "InputDialog";
+    private static final String ARGS_ADD_MODE = "ARGS_ADD_MODE";
 
     private Word mWord;
     private TextView mSynonymText;
     private Button mDateButton;
-    private TextView mVerifiedTimeText;
+    private TextView mVerifiedDateText;
     private OnWordUpdatedCallback mCallback;
+    @Nullable
     private FragmentManager mFragmentManager;
     private TextView mTypeText;
     private TextView mTranslationText;
@@ -56,6 +61,8 @@ public class WordFragment extends Fragment {
     private ImageView mImageView;
     private GifView mGifView;
     private ImageHelper.requestImage mRequestImage;
+    private boolean isAddMode;
+    private List<CommonInputFragment.InputViewType> mViewList;
 
     public interface OnWordUpdatedCallback {
         void onWordUpdated(Word word);
@@ -82,6 +89,7 @@ public class WordFragment extends Fragment {
         if (null != arguments) {
             UUID wordId = (UUID) arguments.getSerializable(ARGS_WORD_ID);
             mWord = Dictionary.getInstance().getWord(wordId);
+            isAddMode = arguments.getBoolean(ARGS_ADD_MODE);
             if (mWord != null) {
                 mRequestImage = new ImageHelper.requestImage(getActivity(),
                         mWord.getPictureLink(),
@@ -131,40 +139,164 @@ public class WordFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_word_details, container, false);
-        mContentText = (TextView) view.findViewById(R.id.details_word_content_text);
-        mSynonymText = (TextView) view.findViewById(R.id.details_word_synonym_text);
-        mTypeText = (TextView) view.findViewById(R.id.details_word_type_text);
-        mTranslationText = (TextView) view.findViewById(R.id.details_word_translation_text);
-        mQuarryText = (TextView) view.findViewById(R.id.details_word_quarry_text);
-        mExampleText = (TextView) view.findViewById(R.id.details_word_example_text);
-        mVerifiedTimeText = (TextView) view.findViewById(R.id.details_word_verified_date_text);
-        mEarliestDateText = (TextView) view.findViewById(R.id.details_word_earliest_date_text);
-        mEarliestAddrText = (TextView) view.findViewById(R.id.details_word_earliest_addr_text);
-        mVerifiedOtherText = (TextView) view.findViewById(R.id.details_word_verified_other_text);
-        mAuthorText = (TextView) view.findViewById(R.id.details_word_author_text);
-        mRestorersText = (TextView) view.findViewById(R.id.details_word_restorers_text);
-        mImageView = (ImageView) view.findViewById(R.id.details_word_item_image);
-        mGifView = (GifView) view.findViewById(R.id.details_word_item_gif_image);
+        mContentText = view.findViewById(R.id.details_word_content_text);
+        mSynonymText = view.findViewById(R.id.details_word_synonym_text);
+        mTypeText = view.findViewById(R.id.details_word_type_text);
+        mTranslationText = view.findViewById(R.id.details_word_translation_text);
+        mQuarryText = view.findViewById(R.id.details_word_quarry_text);
+        mExampleText = view.findViewById(R.id.details_word_example_text);
+        mVerifiedDateText = view.findViewById(R.id.details_word_verified_date_text);
+        mEarliestDateText = view.findViewById(R.id.details_word_earliest_date_text);
+        mEarliestAddrText = view.findViewById(R.id.details_word_earliest_addr_text);
+        mVerifiedOtherText = view.findViewById(R.id.details_word_verified_other_text);
+        mAuthorText = view.findViewById(R.id.details_word_author_text);
+        mRestorersText = view.findViewById(R.id.details_word_restorers_text);
+        mImageView = view.findViewById(R.id.details_word_item_image);
+        mGifView = view.findViewById(R.id.details_word_item_gif_image);
 
-        // init set data button
-        mDateButton = (Button) view.findViewById(R.id.details_word_set_date);
-        mDateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null == mFragmentManager) {
-                    Utils.outLog(TAG, "can't get FragmentActivity");
-                    return;
-                }
-                DatePickerFragment dialog = DatePickerFragment.newInstance(null);
-                dialog.show(mFragmentManager, DIALOG_DATE_TAG);
-
-            }
-        });
+        if (isAddMode) {
+            bindAllView();
+//            mDateButton = view.findViewById(R.id.details_word_set_date);
+//            mDateButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (null == mFragmentManager) {
+//                        Utils.outLog(TAG, "can't get FragmentActivity");
+//                        return;
+//                    }
+//                    CommonInputFragment dialog = CommonInputFragment.
+//                            newDatePickerInstance("ss", null, null);
+//                    dialog = CommonInputFragment.newTextInstance("ss", "ttt", null, "test" + mWord.getId());
+//                    dialog.show(mFragmentManager, COMMON_INPUT_DIALOG_TAG);
+//                }
+//            });
+        }
 
         //set show data
         updateAllUI();
 
         return view;
+    }
+
+    private void bindAllView() {
+        if (null == mWord || null == mFragmentManager) {
+            Utils.logDebug(TAG, "bindAllView() fail : mWord or mFragmentManager is null" + "\n" +
+                    "mWord : " + mWord + "  mFragmentManager : " + mFragmentManager);
+            return;
+        }
+        initViewList();
+        setAllOnClick();
+        mFragmentManager.setFragmentResultListener(CommonInputFragment.RESULT_DATE_KEY,
+                this,
+                (requestKey, result) -> {
+                    if (!CommonInputFragment.RESULT_DATE_KEY.equals(requestKey)) {
+                        Utils.logDebug(TAG, "not equals");
+                        return;
+                    }
+                    Date date = (Date) result.getSerializable(CommonInputFragment.RESULT_DATE_KEY);
+                    Utils.logDebug(TAG, "date :" + date);
+                    mWord.getVerifiedInfo().setVerifiedTime(date);
+                    updateAllUI();
+                    updateWordListUI();
+                });
+    }
+
+
+    private void setAllOnClick() {
+        if (null == mWord) {
+            Utils.logDebug(TAG, "setAllOnClick() fail : mWord is null");
+            return;
+        }
+        for (CommonInputFragment.InputViewType inputViewType : mViewList) {
+            View view = inputViewType.getView();
+            view.setClickable(true);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onViewClick(inputViewType);
+                }
+            });
+        }
+    }
+
+    private void onViewClick(CommonInputFragment.InputViewType inputViewType) {
+        if (null == mFragmentManager) {
+            Utils.outLog(TAG, "can't get FragmentActivity");
+            return;
+        }
+        CommonInputFragment.InputType inputType = inputViewType.getInputType();
+        if (null == inputType) {
+            return;
+        }
+        CommonInputFragment dialog;
+        switch (inputType) {
+            case TEXT_INPUT:
+                dialog = CommonInputFragment.
+                        newTextInstance(inputViewType.getTitle(),
+                                inputViewType.getHint(),
+                                inputViewType.getHasContent(),
+                                null);
+                break;
+            case DATE_PICKER:
+                dialog = CommonInputFragment.
+                        newDatePickerInstance(inputViewType.getTitle(),
+                                inputViewType.getDate(),
+                                null);
+                break;
+            case SPINNER:
+                dialog = CommonInputFragment.
+                        newSelectInstance(inputViewType.getTitle(),
+                                inputViewType.getSpinnerAllItem(),
+                                inputViewType.getSelectItem(),
+                                null);
+                break;
+            default:
+                Utils.logDebug(TAG, "need implementation : " + inputType);
+                return;
+        }
+        dialog.show(mFragmentManager, COMMON_INPUT_DIALOG_TAG);
+    }
+
+    private void initViewList() {
+        if (null == mViewList) {
+            mViewList = new ArrayList<>();
+            mViewList.add(new CommonInputFragment.InputViewType(mContentText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.WORD_KEY));
+            mViewList.add(new CommonInputFragment.InputViewType(mSynonymText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.SYNONYM_KEY));
+            mViewList.add(new CommonInputFragment.InputViewType(mTypeText, CommonInputFragment.InputType.SPINNER)
+                    .setSpinnerInfo(WordJsonDefine.Explain.TYPE_KEY, WordJsonDefine.WordType.getNames(), mWord.getWordType().ordinal()));
+            mViewList.add(new CommonInputFragment.InputViewType(mTranslationText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.TRANSLATION_KEY));
+            mViewList.add(new CommonInputFragment.InputViewType(mQuarryText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.QUARRY_KEY));
+            mViewList.add(new CommonInputFragment.InputViewType(mExampleText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.EXAMPLE_KEY));
+
+            VerifiedInfo verifiedInfo = mWord.getVerifiedInfo();
+            mViewList.add(new CommonInputFragment.InputViewType(mVerifiedDateText, CommonInputFragment.InputType.DATE_PICKER)
+                    .setDatePickerInfo(WordJsonDefine.Explain.VERIFIED_TIME_KEY, verifiedInfo.getVerifiedTime()));
+            mViewList.add(new CommonInputFragment.InputViewType(mEarliestDateText, CommonInputFragment.InputType.DATE_PICKER)
+                    .setDatePickerInfo(WordJsonDefine.Explain.EARLIEST_TIME_KEY, verifiedInfo.getEarliestTime()));
+
+            mViewList.add(new CommonInputFragment.InputViewType(mEarliestAddrText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.EARLIEST_ADDR_KEY));
+            mViewList.add(new CommonInputFragment.InputViewType(mVerifiedOtherText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.OTHER_KEY));
+            mViewList.add(new CommonInputFragment.InputViewType(mAuthorText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.AUTHOR_KEY));
+            mViewList.add(new CommonInputFragment.InputViewType(mRestorersText, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.RESTORERS_KEY));
+            mViewList.add(new CommonInputFragment.InputViewType(mImageView, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.PICTURE_LINK));
+            mViewList.add(new CommonInputFragment.InputViewType(mGifView, CommonInputFragment.InputType.TEXT_INPUT)
+                    .setTextInputInfo(WordJsonDefine.Explain.PICTURE_LINK));
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     /**
@@ -199,20 +331,12 @@ public class WordFragment extends Fragment {
         if (null == mFragmentManager) {
             return;
         }
-        Utils.logDebug(TAG, "set Fragment Result Listener id : "
-                + (mWord == null ? "null word" : mWord.getId()));
-        mFragmentManager.setFragmentResultListener(DatePickerFragment.REQUEST_DATE_KEY,
-                getViewLifecycleOwner(),
+        mFragmentManager.setFragmentResultListener("test" + mWord.getId(),
+                this,
                 (requestKey, result) -> {
-                    if (!DatePickerFragment.REQUEST_DATE_KEY.equals(requestKey)) {
-                        Utils.logDebug(TAG, "not equals");
-                        return;
-                    }
-                    Date date = (Date) result.getSerializable(DatePickerFragment.DATE_KEY);
-                    Utils.logDebug(TAG, "date :" + date);
-                    mWord.getVerifiedInfo().setVerifiedTime(date);
-                    updateAllUI();
-                    updateWordListUI();
+                    String text = result.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                    Utils.logDebug(TAG, "text :" + text);
+                    mDateButton.setText(text);
                 });
     }
 
@@ -225,7 +349,7 @@ public class WordFragment extends Fragment {
         }
         Utils.logDebug(TAG, "clear Fragment Result Listener id : "
                 + (mWord == null ? "null word" : mWord.getId()));
-        mFragmentManager.clearFragmentResultListener(DatePickerFragment.REQUEST_DATE_KEY);
+        mFragmentManager.clearFragmentResultListener("test" + mWord.getId());
     }
 
     private void updateAllUI() {
@@ -258,7 +382,7 @@ public class WordFragment extends Fragment {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
         Utils.logDebug(TAG, "verifiedDate :" + verifiedDate + " valid : " + verifiedInfo.isValid());
-        setTextShowUI(mVerifiedTimeText, getString(R.string.verified_date) + verifiedDate,
+        setTextShowUI(mVerifiedDateText, getString(R.string.verified_date) + verifiedDate,
                 !verifiedInfo.isValid());
 
         calendar.setTime(verifiedInfo.getEarliestTime());
@@ -297,9 +421,10 @@ public class WordFragment extends Fragment {
         GlobalHandler.getInstance().post2BackgroundHandler(mRequestImage);
     }
 
-    public static WordFragment newInstance(UUID wordId) {
+    public static WordFragment newInstance(UUID wordId, boolean isAddMode) {
         Bundle args = new Bundle();
         args.putSerializable(ARGS_WORD_ID, wordId);
+        args.putBoolean(ARGS_ADD_MODE, isAddMode);
 
         WordFragment wordFragment = new WordFragment();
         wordFragment.setArguments(args);

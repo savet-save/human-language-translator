@@ -8,9 +8,9 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.humanlanguagetranslator.GlobalHandler;
+import com.example.humanlanguagetranslator.util.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
 import com.example.humanlanguagetranslator.fragment.WordFragment;
@@ -51,12 +51,12 @@ public class WordListActivity extends SingleFragmentActivity
     }
 
     @Override
-    public void onItemSelected(Word word) {
+    public void onItemSelected(Word word, boolean isAddMode) {
         if (Utils.isDualPane(this)) {
-            Intent intent = WordPagerActivity.newIntent(this, word.getId());
+            Intent intent = WordPagerActivity.newIntent(this, word.getId(), isAddMode);
             startActivity(intent);
         } else {
-            Fragment newDetail = WordFragment.newInstance(word.getId());
+            Fragment newDetail = WordFragment.newInstance(word.getId(), isAddMode);
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_fragment_container, newDetail)

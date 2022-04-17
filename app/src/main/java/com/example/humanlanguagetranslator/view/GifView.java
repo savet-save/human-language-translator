@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.Utils;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
