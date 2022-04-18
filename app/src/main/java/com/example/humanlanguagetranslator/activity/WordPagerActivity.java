@@ -11,10 +11,10 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
 import com.example.humanlanguagetranslator.fragment.WordFragment;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import java.util.List;
 import java.util.UUID;

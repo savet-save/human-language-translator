@@ -4,9 +4,9 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.helper.AssetsHelper;
 import com.example.humanlanguagetranslator.helper.JsonHelp;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;

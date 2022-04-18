@@ -65,7 +65,7 @@ public class FileHelper {
      */
     @Nullable
     public static byte[] readFile(String fileName, Context context) {
-        if (null == fileName || null == context) {
+        if (Utils.isEmptyString(fileName) || null == context) {
             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
             return null;
         }

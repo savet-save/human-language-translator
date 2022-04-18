@@ -32,4 +32,5 @@
     <string name="earliest_addr">最早地址：</string>
     <string name="word_author">作者：</string>
     <string name="word_restorers">修订者：</string>
+    <string name="add_item">新增一项</string>
 </resources>

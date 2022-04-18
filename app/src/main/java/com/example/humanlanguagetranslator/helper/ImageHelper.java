@@ -4,8 +4,9 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
+import com.example.humanlanguagetranslator.data.Word;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -52,17 +53,21 @@ public class ImageHelper {
         }
     }
 
-    public static abstract class requestImage implements Runnable {
+    public static abstract class RequestImage implements Runnable {
         private static final int DEFAULT_NUMBER_THREADS = 10;
         private static final ExecutorService executorService = Executors.newFixedThreadPool(DEFAULT_NUMBER_THREADS);
         private static final Object syncObject = new Object();
 
         private final Context mContext;
-        private final String mImageUrl;
-        private final ImageType mImageType;
+        private String mImageUrl;
+        private ImageType mImageType;
         private final UUID mWordId;
-        private final String mFileName;
+        /**
+         * not with suffix
+         */
+        private String mFileName;
         private final boolean mForceRequest;
+        private Word mWord;
 
         /**
          * create a requestImage, but not save to cache, and save to file or read from file
@@ -70,7 +75,7 @@ public class ImageHelper {
          * @param context  context
          * @param imageUrl request image url
          */
-        public requestImage(Context context, String imageUrl) {
+        public RequestImage(Context context, String imageUrl) {
             this(context, imageUrl, null, null, false);
         }
 
@@ -82,7 +87,7 @@ public class ImageHelper {
          * @param wordId   for save to cache
          * @param fileName save or read image file name
          */
-        public requestImage(Context context,
+        public RequestImage(Context context,
                             String imageUrl,
                             @Nullable UUID wordId,
                             @Nullable String fileName,
@@ -93,6 +98,18 @@ public class ImageHelper {
             mImageType = ImageHelper.getImageType(mImageUrl);
             mFileName = fileName;
             mForceRequest = forceRequest;
+        }
+
+        /**
+         * create a can change it dynamically image url requestImage,
+         * and save to cache, save or read image from file
+         * @param context context
+         * @param word request word
+         * @param forceRequest save or read image file name
+         */
+        public RequestImage(Context context, Word word, boolean forceRequest) {
+            this(context, word.getPictureLink(), word.getId(), word.getContent(), forceRequest);
+            mWord = word;
         }
 
         public ImageType getImageType() {
@@ -111,7 +128,7 @@ public class ImageHelper {
 
         private void dealWithImage() {
             // step 1. check local
-            if (!mForceRequest) {
+            if (!mForceRequest && !Utils.isEmptyString(mFileName)) {
                 byte[] imageData = FileHelper.readFile(mFileName + getSuffix(), mContext);
                 if (null != imageData) {
                     updateImage(imageData);
@@ -121,7 +138,12 @@ public class ImageHelper {
                 }
             }
             // step 2. check url
+            if (mWord != null) {
+                mImageUrl = mWord.getPictureLink();
+                mImageType = ImageHelper.getImageType(mImageUrl);
+            }
             if (Utils.isEmptyString(mImageUrl)) {
+                Utils.logDebug(TAG, "mImageUrl : " + mImageUrl);
                 return;
             }
             Utils.logDebug(TAG, "image type :" + mImageType);
@@ -172,7 +194,10 @@ public class ImageHelper {
         }
 
         public void saveToFile(byte[] data) {
-            if (null == mFileName) {
+            if (mWord != null) {
+                mFileName = mWord.getContent();
+            }
+            if (Utils.isEmptyString(mFileName)) {
                 return;
             }
             if (FileHelper.saveFile(data, mFileName + getSuffix(), mContext)) {

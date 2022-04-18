@@ -14,6 +14,7 @@ import com.example.humanlanguagetranslator.BuildConfig;
 import com.example.humanlanguagetranslator.R;
 
 import java.util.List;
+import java.util.UUID;
 
 public final class Utils {
     /**
@@ -24,6 +25,10 @@ public final class Utils {
     public static final int ID_MENU_ABOUT = R.id.menu_item_about;
 
     public static final int ERROR_CONTEXT = 0;
+    public static final int MAX_LONG_SHOW_LENGTH = String.valueOf(Long.MAX_VALUE).length();
+
+    private static long sSequenceNumber = 0;
+    private static final Object SEQUENCE_NUMBER_LOCK = new Object();
 
     public static boolean isDebug() {
         return BuildConfig.DEBUG;
@@ -176,5 +181,32 @@ public final class Utils {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog()
                     .build());
         }
+    }
+
+    public static String getSequenceAddNumber(int stringLength) {
+        StringBuilder builder = new StringBuilder();
+        synchronized (SEQUENCE_NUMBER_LOCK) {
+            String s = String.valueOf(sSequenceNumber);
+            int addNumber = stringLength - s.length();
+            while (addNumber > 0) {
+                builder.append('0');
+                addNumber--;
+            }
+            sSequenceNumber++;
+            if (sSequenceNumber < 0) {
+                sSequenceNumber = 0; //keep a positive number
+            }
+            builder.append(s);
+        }
+        return builder.toString();
+    }
+
+    /**
+     * <p> get a not repeat id </p>
+     * <p> like : 4e664030-4bc5-40dc-8863-6b02400bec64-0000000000000000011</p>
+     * @return a not repeat id string
+     */
+    public static String getNotRepeatId() {
+        return UUID.randomUUID().toString() + "-" + Utils.getSequenceAddNumber(Utils.MAX_LONG_SHOW_LENGTH);
     }
 }

@@ -28,14 +28,14 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.humanlanguagetranslator.util.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.activity.SearchActivity;
 import com.example.humanlanguagetranslator.activity.WordListActivity;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
 import com.example.humanlanguagetranslator.helper.ImageHelper;
+import com.example.humanlanguagetranslator.util.GlobalHandler;
+import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.view.GifView;
 
 import java.util.ArrayList;
@@ -203,7 +203,7 @@ public class WordListFragment extends Fragment {
         private final TextView mTitleView;
         private final TextView mTranslationView;
         private Word mWord;
-        private ImageHelper.requestImage mRequestImage;
+        private ImageHelper.RequestImage mRequestImage;
 
         public WordHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_word, parent, false));
@@ -220,7 +220,7 @@ public class WordListFragment extends Fragment {
                 return;
             }
             mWord = word;
-            mRequestImage = new ImageHelper.requestImage(getActivity(),
+            mRequestImage = new ImageHelper.RequestImage(getActivity(),
                     mWord.getPictureLink(),
                     mWord.getId(),
                     mWord.getContent(),

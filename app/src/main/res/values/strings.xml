@@ -32,4 +32,6 @@
     <string name="earliest_addr">"earliest address : "</string>
     <string name="word_author">"author : "</string>
     <string name="word_restorers">"restorers : "</string>
+
+    <string name="add_item">add item</string>
 </resources>

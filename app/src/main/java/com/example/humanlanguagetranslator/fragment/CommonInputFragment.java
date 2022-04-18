@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -18,11 +19,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.data.WordJsonDefine;
+import com.example.humanlanguagetranslator.helper.ArrayInputHelper;
 import com.example.humanlanguagetranslator.util.Utils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -40,11 +46,26 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
     private static final String ARG_REQUEST_ID = "ARG_REQUEST_ID";
     private static final String ARG_SELECT_ALL_ITEMS = "ARG_SELECT_ALL_ITEMS";
     private static final String ARG_SELECT_ITEM = "ARG_SELECT_ITEM";
+    public static final String ARG_ARRAY_LIST_CONTENT = "ARG_ARRAY_LIST_CONTENT";
 
     //result
+    /**
+     * return type : Date
+     */
     public static final String RESULT_DATE_KEY = "RESULT_DATE_KEY";
+    /**
+     * return type : String
+     */
     public static final String RESULT_TEXT_KEY = "RESULT_TEXT_KEY";
+    /**
+     * return type : int
+     */
     public static final String RESULT_SELECT_KEY = "RESULT_SELECT_KEY";
+    /**
+     * return type : ArrayList&lt;String&gt;
+     */
+    public static final String RESULT_INPUT_ARRAY_CONTENT = "RESULT_INPUT_ARRAY_CONTENT";
+
 
     private DatePicker mDatePicker;
     private EditText mTextInput;
@@ -52,7 +73,15 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
     private InputType mInputType;
     private String mRequestId;
     private Spinner mSpinner;
+    private View mArrayInputLayout;
+    private RecyclerView mArrayInputRecycler;
 
+    @NonNull
+    private static CommonInputFragment getCommonInputFragmentWithArguments(Bundle args) {
+        CommonInputFragment fragment = new CommonInputFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @NonNull
     public static CommonInputFragment newTextInstance(String title, String hint, String hasContent, String requestId) {
@@ -63,9 +92,7 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         args.putString(ARG_REQUEST_ID, requestId);
         args.putString(ARG_HAS_CONTENT, hasContent);
 
-        CommonInputFragment fragment = new CommonInputFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return getCommonInputFragmentWithArguments(args);
     }
 
     public static CommonInputFragment newDatePickerInstance(String title, Date date, String requestId) {
@@ -75,22 +102,28 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         args.putSerializable(ARG_INPUT_TYPE, InputType.DATE_PICKER);
         args.putString(ARG_REQUEST_ID, requestId);
 
-        CommonInputFragment fragment = new CommonInputFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return getCommonInputFragmentWithArguments(args);
     }
 
-    public static CommonInputFragment newSelectInstance(String title, String[] items, int selectItem,String requestId) {
+    public static CommonInputFragment newSelectInstance(String title, String[] items, int selectItem, String requestId) {
         Bundle args = new Bundle();
         args.putString(ARG_TITLE, title);
         args.putStringArray(ARG_SELECT_ALL_ITEMS, items);
-        args.putInt(ARG_SELECT_ITEM ,selectItem);
+        args.putInt(ARG_SELECT_ITEM, selectItem);
         args.putSerializable(ARG_INPUT_TYPE, InputType.SPINNER);
         args.putString(ARG_REQUEST_ID, requestId);
 
-        CommonInputFragment fragment = new CommonInputFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return getCommonInputFragmentWithArguments(args);
+    }
+
+    public static CommonInputFragment newArrayTextInputInstance(String title, ArrayList<String> content, String requestId) {
+        Bundle args = new Bundle();
+        args.putString(ARG_TITLE, title);
+        args.putStringArrayList(ARG_ARRAY_LIST_CONTENT, content);
+        args.putSerializable(ARG_INPUT_TYPE, InputType.ARRAY_TEXT_INPUT);
+        args.putString(ARG_REQUEST_ID, requestId);
+
+        return getCommonInputFragmentWithArguments(args);
     }
 
 
@@ -103,9 +136,7 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         if (null != arguments) {
             title = arguments.getString(ARG_TITLE);
         }
-        View view = LayoutInflater.from(mFragmentActivity)
-                .inflate(R.layout.dialog_common_input, null);
-        initView(view, arguments);
+        View view = initView(arguments);
         return new AlertDialog.Builder(mFragmentActivity)
                 .setCancelable(true)
                 .setTitle(title)
@@ -115,44 +146,73 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
                 .create();
     }
 
-    private void initView(View view, Bundle arguments) {
+    private View initView(Bundle arguments) {
+        View view = null;
         if (null != arguments) {
             mInputType = (InputType) arguments.getSerializable(ARG_INPUT_TYPE);
             mInputType = (mInputType == null ? InputType.TEXT_INPUT : mInputType); // not equal null
             mRequestId = arguments.getString(ARG_REQUEST_ID); // nullable
 
         }
+        Utils.logDebug(TAG, "common dialog type : " + mInputType);
+        view = LayoutInflater.from(mFragmentActivity)
+                .inflate(R.layout.dialog_common_input, null);
         mDatePicker = view.findViewById(R.id.date_picker_dialog);
         mTextInput = view.findViewById(R.id.text_input_dialog);
         mSpinner = view.findViewById(R.id.select_dialog);
+        mArrayInputLayout = view.findViewById(R.id.array_text_input_dialog);
         switch (mInputType) {
             case DATE_PICKER:
                 mDatePicker.setVisibility(View.VISIBLE);
-                mTextInput.setVisibility(View.GONE);
-                mSpinner.setVisibility(View.GONE);
                 datePickerInit(arguments);
                 break;
             case SPINNER:
                 mSpinner.setVisibility(View.VISIBLE);
-                mTextInput.setVisibility(View.GONE);
-                mDatePicker.setVisibility(View.GONE);
                 spinnerInit(arguments);
+                break;
+            case ARRAY_TEXT_INPUT:
+                mArrayInputLayout.setVisibility(View.VISIBLE);
+                arrayInputInit(arguments);
                 break;
             case TEXT_INPUT:
             default:
                 mTextInput.setVisibility(View.VISIBLE);
-                mDatePicker.setVisibility(View.GONE);
-                mSpinner.setVisibility(View.GONE);
                 textInputInit(arguments);
                 break;
         }
+        return view;
+    }
+
+    private void arrayInputInit(Bundle arguments) {
+        ArrayList<String> arrayList = null;
+        if (null != arguments) {
+            arrayList = arguments.getStringArrayList(ARG_ARRAY_LIST_CONTENT);
+        }
+        if (null == arrayList) {
+            arrayList = new ArrayList<>(); // must has
+            arrayList.add("");
+        }
+        ArrayInputHelper.ItemAdapter itemAdapter = new ArrayInputHelper.ItemAdapter(getActivity(), arrayList);
+        mArrayInputRecycler = mArrayInputLayout.findViewById(R.id.array_text_input_recycler);
+        FragmentActivity activity = getActivity();
+        mArrayInputRecycler.setLayoutManager(new LinearLayoutManager(activity));
+        if (null != activity) {
+            mArrayInputRecycler.addItemDecoration(new DividerItemDecoration(activity,
+                    DividerItemDecoration.VERTICAL));
+        }
+        mArrayInputRecycler.setAdapter(itemAdapter);
+
+        Button addButton = mArrayInputLayout.findViewById(R.id.array_input_item_add);
+        addButton.setOnClickListener(v -> {
+            itemAdapter.addItem("");
+        });
     }
 
     private void spinnerInit(Bundle arguments) {
         String[] items = null;
         int selection = 0;
         if (arguments != null) {
-            items =  arguments.getStringArray(ARG_SELECT_ALL_ITEMS);
+            items = arguments.getStringArray(ARG_SELECT_ALL_ITEMS);
             selection = arguments.getInt(ARG_SELECT_ITEM);
         }
         MySpinnerAdapter spinnerAdapter = new MySpinnerAdapter(getActivity());
@@ -212,12 +272,23 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
                 int year = mDatePicker.getYear();
                 int month = mDatePicker.getMonth();
                 int day = mDatePicker.getDayOfMonth();
-                Date date =  new GregorianCalendar(year, month, day).getTime();
+                Date date = new GregorianCalendar(year, month, day).getTime();
                 result.putSerializable(RESULT_DATE_KEY, date);
                 break;
             case SPINNER:
                 int selected = mSpinner.getSelectedItemPosition();
                 result.putInt(RESULT_SELECT_KEY, selected);
+                break;
+            case ARRAY_TEXT_INPUT:
+                ArrayInputHelper.ItemAdapter adapter = (ArrayInputHelper.ItemAdapter) mArrayInputRecycler.getAdapter();
+                ArrayList<String> inputContent = null;
+                if (null != adapter) {
+                    inputContent = adapter.getInputArray();
+                }
+                if (null == inputContent) {
+                    inputContent = new ArrayList<>();
+                }
+                result.putStringArrayList(RESULT_INPUT_ARRAY_CONTENT, inputContent);
                 break;
             case TEXT_INPUT:
             default:
@@ -231,14 +302,15 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
     public void onClick(DialogInterface dialog, int which) {
         if (which == Dialog.BUTTON_POSITIVE) {
             sendResult();
-            Utils.logDebug(TAG, " select : " + mSpinner.getSelectedItemPosition());
         }
     }
 
+    // if add item, need add to getResultBundle() and initView()
     public enum InputType {
         TEXT_INPUT,
         DATE_PICKER,
-        SPINNER
+        SPINNER,
+        ARRAY_TEXT_INPUT
     }
 
     public static class MySpinnerAdapter extends BaseAdapter {
@@ -293,14 +365,23 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
 
         private final View mView;
         private final InputType mInputType;
+        private final String mId;
         private String mTitle;
         private String mHint;
         private String mHasContent;
         private Date mDate;
         private int mSelectItem;
         private String[] mSpinnerAllItem;
+        private SaveData mSaveData;
+        private ArrayList<String> mContentList;
+
+        public interface SaveData {
+            void saveData(Bundle bundle);
+        }
 
         public InputViewType(View view, InputType inputType) {
+            mId = Utils.getNotRepeatId();
+            Utils.logDebug(TAG, mId);
             mView = view;
             mInputType = inputType;
             mSelectItem = 0;
@@ -314,12 +395,10 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
             return mInputType;
         }
 
-        public InputViewType setTextInputInfo(String title) {
+        public InputViewType setTextInputInfo(String title, String hasContent) {
             mTitle = title;
             mHint = WordJsonDefine.Explain.getExplainValue(title);
-            if (mView instanceof TextView) {
-                mHasContent = ((TextView) mView).getText().toString();
-            }
+            mHasContent = hasContent;
             return this;
         }
 
@@ -334,6 +413,26 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
             mSpinnerAllItem = items;
             mSelectItem = showItem;
             return this;
+        }
+
+        public InputViewType setArrayTextInputInfo(String title, ArrayList<String> contentList) {
+            mTitle = title;
+            mContentList = contentList;
+            return this;
+        }
+
+        public InputViewType setSaveData(SaveData saveData) {
+            mSaveData = saveData;
+            return this;
+        }
+
+        @Nullable
+        public SaveData getSaveData() {
+            return mSaveData;
+        }
+
+        public String getId() {
+            return mId;
         }
 
         @Nullable
@@ -354,6 +453,11 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         @Nullable
         public Date getDate() {
             return mDate;
+        }
+
+        @Nullable
+        public ArrayList<String> getArrayContent() {
+            return mContentList;
         }
 
         public String[] getSpinnerAllItem() {

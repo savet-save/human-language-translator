@@ -19,14 +19,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.humanlanguagetranslator.data.WordJsonDefine;
-import com.example.humanlanguagetranslator.util.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.VerifiedInfo;
 import com.example.humanlanguagetranslator.data.Word;
+import com.example.humanlanguagetranslator.data.WordJsonDefine;
 import com.example.humanlanguagetranslator.helper.ImageHelper;
+import com.example.humanlanguagetranslator.util.GlobalHandler;
+import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.view.GifView;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class WordFragment extends Fragment {
     private TextView mRestorersText;
     private ImageView mImageView;
     private GifView mGifView;
-    private ImageHelper.requestImage mRequestImage;
+    private ImageHelper.RequestImage mRequestImage;
     private boolean isAddMode;
     private List<CommonInputFragment.InputViewType> mViewList;
 
@@ -91,11 +91,7 @@ public class WordFragment extends Fragment {
             mWord = Dictionary.getInstance().getWord(wordId);
             isAddMode = arguments.getBoolean(ARGS_ADD_MODE);
             if (mWord != null) {
-                mRequestImage = new ImageHelper.requestImage(getActivity(),
-                        mWord.getPictureLink(),
-                        mWord.getId(),
-                        mWord.getContent(),
-                        false) {
+                mRequestImage = new ImageHelper.RequestImage(getActivity(), mWord, false) {
                     @Override
                     public void updateImage(byte[] data) {
                         myUpdateImage(data);
@@ -138,67 +134,93 @@ public class WordFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_word_details, container, false);
-        mContentText = view.findViewById(R.id.details_word_content_text);
-        mSynonymText = view.findViewById(R.id.details_word_synonym_text);
-        mTypeText = view.findViewById(R.id.details_word_type_text);
-        mTranslationText = view.findViewById(R.id.details_word_translation_text);
-        mQuarryText = view.findViewById(R.id.details_word_quarry_text);
-        mExampleText = view.findViewById(R.id.details_word_example_text);
-        mVerifiedDateText = view.findViewById(R.id.details_word_verified_date_text);
-        mEarliestDateText = view.findViewById(R.id.details_word_earliest_date_text);
-        mEarliestAddrText = view.findViewById(R.id.details_word_earliest_addr_text);
-        mVerifiedOtherText = view.findViewById(R.id.details_word_verified_other_text);
-        mAuthorText = view.findViewById(R.id.details_word_author_text);
-        mRestorersText = view.findViewById(R.id.details_word_restorers_text);
-        mImageView = view.findViewById(R.id.details_word_item_image);
-        mGifView = view.findViewById(R.id.details_word_item_gif_image);
+        View layout = inflater.inflate(R.layout.fragment_word_details, container, false);
+        mContentText = layout.findViewById(R.id.details_word_content_text);
+        mSynonymText = layout.findViewById(R.id.details_word_synonym_text);
+        mTypeText = layout.findViewById(R.id.details_word_type_text);
+        mTranslationText = layout.findViewById(R.id.details_word_translation_text);
+        mQuarryText = layout.findViewById(R.id.details_word_quarry_text);
+        mExampleText = layout.findViewById(R.id.details_word_example_text);
+        mVerifiedDateText = layout.findViewById(R.id.details_word_verified_date_text);
+        mEarliestDateText = layout.findViewById(R.id.details_word_earliest_date_text);
+        mEarliestAddrText = layout.findViewById(R.id.details_word_earliest_addr_text);
+        mVerifiedOtherText = layout.findViewById(R.id.details_word_verified_other_text);
+        mAuthorText = layout.findViewById(R.id.details_word_author_text);
+        mRestorersText = layout.findViewById(R.id.details_word_restorers_text);
+        mImageView = layout.findViewById(R.id.details_word_item_image);
+        mGifView = layout.findViewById(R.id.details_word_item_gif_image);
 
-        if (isAddMode) {
-            bindAllView();
-//            mDateButton = view.findViewById(R.id.details_word_set_date);
-//            mDateButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (null == mFragmentManager) {
-//                        Utils.outLog(TAG, "can't get FragmentActivity");
-//                        return;
-//                    }
-//                    CommonInputFragment dialog = CommonInputFragment.
-//                            newDatePickerInstance("ss", null, null);
-//                    dialog = CommonInputFragment.newTextInstance("ss", "ttt", null, "test" + mWord.getId());
-//                    dialog.show(mFragmentManager, COMMON_INPUT_DIALOG_TAG);
-//                }
-//            });
+        updateViewList();
+        setAllOnClick();
+        setAllResultListener();
+
+        if (!isAddMode) {
+            setAllClickable(false);
         }
+
+        //only test
+        mDateButton = layout.findViewById(R.id.details_word_set_date);
+        mDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isAddMode = !isAddMode;
+                setAllClickable(isAddMode);
+                updateAllUI();
+            }
+        });
 
         //set show data
         updateAllUI();
 
-        return view;
+        return layout;
     }
 
-    private void bindAllView() {
-        if (null == mWord || null == mFragmentManager) {
-            Utils.logDebug(TAG, "bindAllView() fail : mWord or mFragmentManager is null" + "\n" +
-                    "mWord : " + mWord + "  mFragmentManager : " + mFragmentManager);
+    private void setAllClickable(boolean mode) {
+        for (CommonInputFragment.InputViewType inputViewType : mViewList) {
+            View view = inputViewType.getView();
+            if (mode != view.isClickable()) {
+                view.setClickable(mode);
+            }
+        }
+    }
+
+    // call must is meaningful after call initViewList
+    private void setAllResultListener() {
+        if (null == mFragmentManager) {
+            Utils.logDebug(TAG, "setAllResultListener() fail : mFragmentManager is null");
             return;
         }
-        initViewList();
-        setAllOnClick();
-        mFragmentManager.setFragmentResultListener(CommonInputFragment.RESULT_DATE_KEY,
-                this,
-                (requestKey, result) -> {
-                    if (!CommonInputFragment.RESULT_DATE_KEY.equals(requestKey)) {
-                        Utils.logDebug(TAG, "not equals");
-                        return;
-                    }
-                    Date date = (Date) result.getSerializable(CommonInputFragment.RESULT_DATE_KEY);
-                    Utils.logDebug(TAG, "date :" + date);
-                    mWord.getVerifiedInfo().setVerifiedTime(date);
-                    updateAllUI();
-                    updateWordListUI();
-                });
+        for (CommonInputFragment.InputViewType inputViewType : mViewList) {
+            mFragmentManager.setFragmentResultListener(inputViewType.getId(),
+                    this,
+                    (requestKey, result) -> {
+                        Utils.logDebug(TAG, "requestKey : " + requestKey);
+                        Date date = (Date) result.getSerializable(CommonInputFragment.RESULT_DATE_KEY);
+                        Utils.logDebug(TAG, "date :" + date);
+                        String string = result.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                        Utils.logDebug(TAG, "text :" + string);
+                        int type = result.getInt(CommonInputFragment.RESULT_SELECT_KEY);
+                        Utils.logDebug(TAG, "type :" + type);
+                        CommonInputFragment.InputViewType.SaveData saveData = inputViewType.getSaveData();
+                        if (null != saveData) {
+                            saveData.saveData(result);
+                            updateAllUI();
+                            updateWordListUI();
+                            updateViewList();
+                        }
+                    });
+        }
+    }
+
+    // call must is meaningful after call initViewList
+    private void cleanAllResultListener() {
+        if (null == mFragmentManager) {
+            Utils.logDebug(TAG, "cleanAllResultListener() fail : mFragmentManager is null");
+            return;
+        }
+        for (CommonInputFragment.InputViewType inputViewType : mViewList) {
+            mFragmentManager.clearFragmentResultListener(inputViewType.getId());
+        }
     }
 
 
@@ -235,20 +257,26 @@ public class WordFragment extends Fragment {
                         newTextInstance(inputViewType.getTitle(),
                                 inputViewType.getHint(),
                                 inputViewType.getHasContent(),
-                                null);
+                                inputViewType.getId());
                 break;
             case DATE_PICKER:
                 dialog = CommonInputFragment.
                         newDatePickerInstance(inputViewType.getTitle(),
                                 inputViewType.getDate(),
-                                null);
+                                inputViewType.getId());
                 break;
             case SPINNER:
                 dialog = CommonInputFragment.
                         newSelectInstance(inputViewType.getTitle(),
                                 inputViewType.getSpinnerAllItem(),
                                 inputViewType.getSelectItem(),
-                                null);
+                                inputViewType.getId());
+                break;
+            case ARRAY_TEXT_INPUT:
+                dialog = CommonInputFragment.
+                        newArrayTextInputInstance(inputViewType.getTitle(),
+                                inputViewType.getArrayContent(),
+                                inputViewType.getId());
                 break;
             default:
                 Utils.logDebug(TAG, "need implementation : " + inputType);
@@ -257,46 +285,181 @@ public class WordFragment extends Fragment {
         dialog.show(mFragmentManager, COMMON_INPUT_DIALOG_TAG);
     }
 
-    private void initViewList() {
+    private void updateViewList() {
+        if (null == mWord) { // There has to be one Word
+            mWord = new Word();
+            Dictionary.getInstance().addWord(mWord);
+            Utils.outLog(TAG, "initViewList() warning : word is null , create a new Word");
+        }
+
         if (null == mViewList) {
             mViewList = new ArrayList<>();
             mViewList.add(new CommonInputFragment.InputViewType(mContentText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.WORD_KEY));
-            mViewList.add(new CommonInputFragment.InputViewType(mSynonymText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.SYNONYM_KEY));
+                    .setTextInputInfo(WordJsonDefine.Explain.WORD_KEY, mWord.getContent())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        String content = bundle.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                        mWord.setContent(content);
+                    }));
+
+            mViewList.add(new CommonInputFragment.InputViewType(mSynonymText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
+                    .setArrayTextInputInfo(WordJsonDefine.Explain.SYNONYM_KEY, mWord.getArraySynonym())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        ArrayList<String> content = bundle.getStringArrayList(CommonInputFragment.RESULT_INPUT_ARRAY_CONTENT);
+                        mWord.setSynonym(content);
+                    }));
+
             mViewList.add(new CommonInputFragment.InputViewType(mTypeText, CommonInputFragment.InputType.SPINNER)
-                    .setSpinnerInfo(WordJsonDefine.Explain.TYPE_KEY, WordJsonDefine.WordType.getNames(), mWord.getWordType().ordinal()));
-            mViewList.add(new CommonInputFragment.InputViewType(mTranslationText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.TRANSLATION_KEY));
-            mViewList.add(new CommonInputFragment.InputViewType(mQuarryText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.QUARRY_KEY));
-            mViewList.add(new CommonInputFragment.InputViewType(mExampleText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.EXAMPLE_KEY));
+                    .setSpinnerInfo(WordJsonDefine.Explain.TYPE_KEY, WordJsonDefine.WordType.getNames(), mWord.getWordType().ordinal())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        int order = bundle.getInt(CommonInputFragment.RESULT_SELECT_KEY);
+                        WordJsonDefine.WordType[] values = WordJsonDefine.WordType.values();
+                        if (order >= 0 && order < values.length) {
+                            mWord.setWordType(values[order]);
+                        }
+                    }));
+
+            mViewList.add(new CommonInputFragment.InputViewType(mTranslationText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
+                    .setArrayTextInputInfo(WordJsonDefine.Explain.TRANSLATION_KEY, mWord.getTranslations())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        ArrayList<String> content = bundle.getStringArrayList(CommonInputFragment.RESULT_INPUT_ARRAY_CONTENT);
+                        mWord.setTranslations(content);
+                    }));
+
+            mViewList.add(new CommonInputFragment.InputViewType(mQuarryText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
+                    .setArrayTextInputInfo(WordJsonDefine.Explain.QUARRY_KEY, mWord.getQuarries())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        ArrayList<String> content = bundle.getStringArrayList(CommonInputFragment.RESULT_INPUT_ARRAY_CONTENT);
+                        mWord.setQuarries(content);
+                    }));
+
+            mViewList.add(new CommonInputFragment.InputViewType(mExampleText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
+                    .setArrayTextInputInfo(WordJsonDefine.Explain.EXAMPLE_KEY, mWord.getExamples())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        ArrayList<String> content = bundle.getStringArrayList(CommonInputFragment.RESULT_INPUT_ARRAY_CONTENT);
+                        mWord.setExamples(content);
+                    }));
 
             VerifiedInfo verifiedInfo = mWord.getVerifiedInfo();
             mViewList.add(new CommonInputFragment.InputViewType(mVerifiedDateText, CommonInputFragment.InputType.DATE_PICKER)
-                    .setDatePickerInfo(WordJsonDefine.Explain.VERIFIED_TIME_KEY, verifiedInfo.getVerifiedTime()));
+                    .setDatePickerInfo(WordJsonDefine.Explain.VERIFIED_TIME_KEY, verifiedInfo.getVerifiedTime())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        Date date = (Date) bundle.getSerializable(CommonInputFragment.RESULT_DATE_KEY);
+                        verifiedInfo.setVerifiedTime(date);
+                    }));
+
             mViewList.add(new CommonInputFragment.InputViewType(mEarliestDateText, CommonInputFragment.InputType.DATE_PICKER)
-                    .setDatePickerInfo(WordJsonDefine.Explain.EARLIEST_TIME_KEY, verifiedInfo.getEarliestTime()));
+                    .setDatePickerInfo(WordJsonDefine.Explain.EARLIEST_TIME_KEY, verifiedInfo.getEarliestTime())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        Date date = (Date) bundle.getSerializable(CommonInputFragment.RESULT_DATE_KEY);
+                        verifiedInfo.setEarliestTime(date);
+                    }));
 
             mViewList.add(new CommonInputFragment.InputViewType(mEarliestAddrText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.EARLIEST_ADDR_KEY));
+                    .setTextInputInfo(WordJsonDefine.Explain.EARLIEST_ADDR_KEY, verifiedInfo.getEarliestAddr())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        String info = bundle.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                        verifiedInfo.setEarliestAddr(info);
+                    }));
+
             mViewList.add(new CommonInputFragment.InputViewType(mVerifiedOtherText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.OTHER_KEY));
+                    .setTextInputInfo(WordJsonDefine.Explain.OTHER_KEY, verifiedInfo.getOther())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        String info = bundle.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                        verifiedInfo.setOther(info);
+                    }));
+
             mViewList.add(new CommonInputFragment.InputViewType(mAuthorText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.AUTHOR_KEY));
-            mViewList.add(new CommonInputFragment.InputViewType(mRestorersText, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.RESTORERS_KEY));
+                    .setTextInputInfo(WordJsonDefine.Explain.AUTHOR_KEY, mWord.getAuthor())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        String info = bundle.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                        mWord.setAuthor(info);
+                    }));
+
+            mViewList.add(new CommonInputFragment.InputViewType(mRestorersText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
+                    .setArrayTextInputInfo(WordJsonDefine.Explain.RESTORERS_KEY, mWord.getRestorers())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        ArrayList<String> content = bundle.getStringArrayList(CommonInputFragment.RESULT_INPUT_ARRAY_CONTENT);
+                        mWord.setRestorers(content);
+                    }));
+
             mViewList.add(new CommonInputFragment.InputViewType(mImageView, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.PICTURE_LINK));
+                    .setTextInputInfo(WordJsonDefine.Explain.PICTURE_LINK, mWord.getPictureLink())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        Utils.logDebug(TAG, "set pic link");
+                        String info = bundle.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                        mWord.setPictureLink(info);
+                    }));
+
             mViewList.add(new CommonInputFragment.InputViewType(mGifView, CommonInputFragment.InputType.TEXT_INPUT)
-                    .setTextInputInfo(WordJsonDefine.Explain.PICTURE_LINK));
+                    .setTextInputInfo(WordJsonDefine.Explain.PICTURE_LINK, mWord.getPictureLink())
+                    .setSaveData(bundle -> {
+                        if (null == bundle) {
+                            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                            return;
+                        }
+                        Utils.logDebug(TAG, "set pic link");
+                        String info = bundle.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                        mWord.setPictureLink(info);
+                    }));
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        cleanAllResultListener();
     }
 
     /**
@@ -357,6 +520,8 @@ public class WordFragment extends Fragment {
             Utils.logDebug(TAG, "update UI fail : mWord is null");
             return;
         }
+        Utils.logDebug(TAG, "call updateAllUI(), isAddMode : " + isAddMode);
+
         setTextShowUI(mContentText, mWord.getContent(), false);
 
         String formatSynonym = mWord.getFormatSynonym(null);
@@ -414,6 +579,20 @@ public class WordFragment extends Fragment {
             myUpdateImage(imageData);
         } else {
             requestNewImage();
+        }
+
+        if (isAddMode) {
+            for (CommonInputFragment.InputViewType inputViewType : mViewList) {
+                View view = inputViewType.getView();
+                if (view instanceof TextView) {
+                    String text = ((TextView) view).getText().toString();
+                    if (Utils.isEmptyString(text)) {
+                        text = inputViewType.getHasContent();
+                    }
+                    ((TextView) view).setText(Utils.isEmptyString(text) ? inputViewType.getTitle() : text);
+                    view.setVisibility(View.VISIBLE);
+                }
+            }
         }
     }
 

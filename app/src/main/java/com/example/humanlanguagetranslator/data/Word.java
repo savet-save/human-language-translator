@@ -6,7 +6,10 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.humanlanguagetranslator.util.Utils;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,6 +86,10 @@ public class Word implements Parcelable {
         return mContent;
     }
 
+    /**
+     * set word Content
+     * @param content if is null, cancel set
+     */
     public void setContent(String content) {
         if (null != content) {
             mContent = content;
@@ -144,7 +151,8 @@ public class Word implements Parcelable {
     }
 
     /**
-     *  get Format Synonym
+     *  <p> get Format Synonym </p>
+     *  <p> default like : Synonym1 Synonym2 Synonym3 </p>
      * @param format default blank space
      * @return
      *  <p> example : format is ',' </p>
@@ -165,14 +173,39 @@ public class Word implements Parcelable {
         return builder.toString();
     }
 
+    public ArrayList<String> getArraySynonym() {
+        String[] synonymArray = mSynonym.split(SYNONYM_SPLIT_REGEX);
+        ArrayList<String> arrayList = new ArrayList<>(synonymArray.length);
+        arrayList.addAll(Arrays.asList(synonymArray));
+        return arrayList;
+    }
+
     /**
      * set Synonym
-     * @param formatSynonym use '%' joint synonym, example : Synonym1%Synonym2%
+     * @param formatSynonym use '%' joint synonym, example : Synonym1%Synonym2
      */
     public void setSynonym(String formatSynonym) {
         if (null != formatSynonym) {
             mSynonym = formatSynonym;
         }
+    }
+
+    /**
+     * set Synonym
+     * @param synonymList synonym list
+     */
+    public void setSynonym(List<String> synonymList) {
+        if (null == synonymList) {
+            return;
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i <  synonymList.size(); i++) {
+            stringBuilder.append(synonymList.get(i));
+            if (i != synonymList.size() - 1) {
+                stringBuilder.append(SYNONYM_SPLIT_REGEX);
+            }
+        }
+        mSynonym = stringBuilder.toString();
     }
 
     @NonNull
@@ -240,6 +273,7 @@ public class Word implements Parcelable {
 
     public void setPictureLink(String pictureLink) {
         if (null != pictureLink) {
+            Utils.logDebug("setPictureLink : " + pictureLink);
             mPictureLink = pictureLink;
         }
     }

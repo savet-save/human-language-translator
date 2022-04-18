@@ -16,12 +16,12 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.activity.WordListActivity;
 import com.example.humanlanguagetranslator.activity.WordPagerActivity;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.SearchHistory;
 import com.example.humanlanguagetranslator.data.Word;
+import com.example.humanlanguagetranslator.util.Utils;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;

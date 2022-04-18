@@ -8,13 +8,13 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.humanlanguagetranslator.util.GlobalHandler;
 import com.example.humanlanguagetranslator.R;
-import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
 import com.example.humanlanguagetranslator.fragment.WordFragment;
 import com.example.humanlanguagetranslator.fragment.WordListFragment;
+import com.example.humanlanguagetranslator.util.GlobalHandler;
+import com.example.humanlanguagetranslator.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
