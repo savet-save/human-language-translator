@@ -195,19 +195,22 @@ public class WordFragment extends Fragment {
                     this,
                     (requestKey, result) -> {
                         Utils.logDebug(TAG, "requestKey : " + requestKey);
-                        Date date = (Date) result.getSerializable(CommonInputFragment.RESULT_DATE_KEY);
-                        Utils.logDebug(TAG, "date :" + date);
                         String string = result.getString(CommonInputFragment.RESULT_TEXT_KEY);
-                        Utils.logDebug(TAG, "text :" + string);
+                        Date date = (Date) result.getSerializable(CommonInputFragment.RESULT_DATE_KEY);
                         int type = result.getInt(CommonInputFragment.RESULT_SELECT_KEY);
+                        ArrayList<String> arrayList = result.getStringArrayList(CommonInputFragment.RESULT_INPUT_ARRAY_CONTENT);
+                        Utils.logDebug(TAG, "text :" + string);
+                        Utils.logDebug(TAG, "date :" + date);
                         Utils.logDebug(TAG, "type :" + type);
+                        Utils.logDebug(TAG, "array : " + arrayList);
+
+                        inputViewType.updateCache(string, date, type, arrayList);
                         CommonInputFragment.InputViewType.SaveData saveData = inputViewType.getSaveData();
                         if (null != saveData) {
                             saveData.saveData(result);
-                            updateAllUI();
-                            updateWordListUI();
-                            updateViewList();
                         }
+                        updateAllUI();
+                        updateWordListUI();
                     });
         }
     }

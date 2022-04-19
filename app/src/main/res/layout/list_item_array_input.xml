@@ -1,31 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.humanlanguagetranslator.view.MaxHeightScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:maxHeight="150dp">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/array_input_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/array_input_item_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:autofillHints="wordContentDescription"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:labelFor="@+id/array_input_item_edit" />
 
-        <TextView
-            android:id="@+id/array_input_item_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"/>
-
-        <EditText
-            android:id="@+id/array_input_item_edit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:gravity="start|top"
-            android:inputType="textMultiLine"
-            android:autofillHints="wordContentDescription"
-            android:labelFor="@+id/array_input_item_edit"/>
-
-    </LinearLayout>
-
-</com.example.humanlanguagetranslator.view.MaxHeightScrollView>
+</LinearLayout>

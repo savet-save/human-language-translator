@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -187,25 +186,33 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         ArrayList<String> arrayList = null;
         if (null != arguments) {
             arrayList = arguments.getStringArrayList(ARG_ARRAY_LIST_CONTENT);
+            Utils.removeEmptyItem(arrayList);
         }
         if (null == arrayList) {
             arrayList = new ArrayList<>(); // must has
-            arrayList.add("");
         }
+        if (arrayList.size() == 0) {
+            arrayList.add(""); // At least one
+        }
+
+
         ArrayInputHelper.ItemAdapter itemAdapter = new ArrayInputHelper.ItemAdapter(getActivity(), arrayList);
         mArrayInputRecycler = mArrayInputLayout.findViewById(R.id.array_text_input_recycler);
+
         FragmentActivity activity = getActivity();
         mArrayInputRecycler.setLayoutManager(new LinearLayoutManager(activity));
-        if (null != activity) {
-            mArrayInputRecycler.addItemDecoration(new DividerItemDecoration(activity,
-                    DividerItemDecoration.VERTICAL));
-        }
-        mArrayInputRecycler.setAdapter(itemAdapter);
+        mArrayInputRecycler.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
-        Button addButton = mArrayInputLayout.findViewById(R.id.array_input_item_add);
+
+        View footerView = LayoutInflater.from(getActivity())
+                .inflate(R.layout.item_array_input_footer, mArrayInputRecycler, false);
+        itemAdapter.setFooterView(footerView);
+        Button addButton = footerView.findViewById(R.id.array_input_item_add);
         addButton.setOnClickListener(v -> {
             itemAdapter.addItem("");
         });
+
+        mArrayInputRecycler.setAdapter(itemAdapter);
     }
 
     private void spinnerInit(Bundle arguments) {
@@ -347,7 +354,6 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
                 Utils.outLog(TAG, "can't init View : Context is null");
                 return null;
             }
-            // 针对convertView做一个简单的优化
             if (convertView == null) {
                 convertView = LayoutInflater.from(mContext).inflate(R.layout.list_itme_spinner, null);
             }
@@ -424,6 +430,13 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         public InputViewType setSaveData(SaveData saveData) {
             mSaveData = saveData;
             return this;
+        }
+
+        public void updateCache(String hasContent, Date date, int showItem, ArrayList<String> contentList) {
+            mHasContent = hasContent;
+            mDate = date;
+            mSelectItem = showItem;
+            mContentList = contentList;
         }
 
         @Nullable

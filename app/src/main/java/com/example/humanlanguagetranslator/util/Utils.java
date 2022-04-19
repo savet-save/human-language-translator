@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.humanlanguagetranslator.BuildConfig;
 import com.example.humanlanguagetranslator.R;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -204,9 +205,20 @@ public final class Utils {
     /**
      * <p> get a not repeat id </p>
      * <p> like : 4e664030-4bc5-40dc-8863-6b02400bec64-0000000000000000011</p>
+     *
      * @return a not repeat id string
      */
     public static String getNotRepeatId() {
         return UUID.randomUUID().toString() + "-" + Utils.getSequenceAddNumber(Utils.MAX_LONG_SHOW_LENGTH);
+    }
+
+    public static void removeEmptyItem(List<String> list) {
+        Iterator<String> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            String next = iterator.next();
+            if (next.isEmpty()) {
+                iterator.remove();
+            }
+        }
     }
 }

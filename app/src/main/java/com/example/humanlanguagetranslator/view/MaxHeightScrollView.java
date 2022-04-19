@@ -10,8 +10,12 @@ import android.widget.ScrollView;
 import com.example.humanlanguagetranslator.R;
 
 /**
+ * <pre>
  * can set max height for ScrollView
+ * *Never add a androidx.recyclerview.widget.RecyclerView or ListView to a scroll view.
+ * Doing so results in poor user interface performance and a poor user experience.
  * base from https://stackoverflow.com/questions/4054567/android-why-is-there-no-maxheight-for-a-view
+ * </pre>
  */
 
 public class MaxHeightScrollView extends ScrollView {
