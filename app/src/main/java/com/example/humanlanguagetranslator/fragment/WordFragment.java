@@ -205,9 +205,9 @@ public class WordFragment extends Fragment {
                         Utils.logDebug(TAG, "array : " + arrayList);
 
                         inputViewType.updateCache(string, date, type, arrayList);
-                        CommonInputFragment.InputViewType.SaveData saveData = inputViewType.getSaveData();
-                        if (null != saveData) {
-                            saveData.saveData(result);
+                        CommonInputFragment.InputViewType.SaveDataCallback callback = inputViewType.getSaveDataCallback();
+                        if (null != callback) {
+                            callback.saveData(result);
                         }
                         updateAllUI();
                         updateWordListUI();
@@ -299,7 +299,7 @@ public class WordFragment extends Fragment {
             mViewList = new ArrayList<>();
             mViewList.add(new CommonInputFragment.InputViewType(mContentText, CommonInputFragment.InputType.TEXT_INPUT)
                     .setTextInputInfo(WordJsonDefine.Explain.WORD_KEY, mWord.getContent())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -310,7 +310,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mSynonymText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
                     .setArrayTextInputInfo(WordJsonDefine.Explain.SYNONYM_KEY, mWord.getArraySynonym())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -321,7 +321,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mTypeText, CommonInputFragment.InputType.SPINNER)
                     .setSpinnerInfo(WordJsonDefine.Explain.TYPE_KEY, WordJsonDefine.WordType.getNames(), mWord.getWordType().ordinal())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -335,7 +335,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mTranslationText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
                     .setArrayTextInputInfo(WordJsonDefine.Explain.TRANSLATION_KEY, mWord.getTranslations())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -346,7 +346,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mQuarryText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
                     .setArrayTextInputInfo(WordJsonDefine.Explain.QUARRY_KEY, mWord.getQuarries())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -357,7 +357,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mExampleText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
                     .setArrayTextInputInfo(WordJsonDefine.Explain.EXAMPLE_KEY, mWord.getExamples())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -369,7 +369,7 @@ public class WordFragment extends Fragment {
             VerifiedInfo verifiedInfo = mWord.getVerifiedInfo();
             mViewList.add(new CommonInputFragment.InputViewType(mVerifiedDateText, CommonInputFragment.InputType.DATE_PICKER)
                     .setDatePickerInfo(WordJsonDefine.Explain.VERIFIED_TIME_KEY, verifiedInfo.getVerifiedTime())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -380,7 +380,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mEarliestDateText, CommonInputFragment.InputType.DATE_PICKER)
                     .setDatePickerInfo(WordJsonDefine.Explain.EARLIEST_TIME_KEY, verifiedInfo.getEarliestTime())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -391,7 +391,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mEarliestAddrText, CommonInputFragment.InputType.TEXT_INPUT)
                     .setTextInputInfo(WordJsonDefine.Explain.EARLIEST_ADDR_KEY, verifiedInfo.getEarliestAddr())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -402,7 +402,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mVerifiedOtherText, CommonInputFragment.InputType.TEXT_INPUT)
                     .setTextInputInfo(WordJsonDefine.Explain.OTHER_KEY, verifiedInfo.getOther())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -413,7 +413,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mAuthorText, CommonInputFragment.InputType.TEXT_INPUT)
                     .setTextInputInfo(WordJsonDefine.Explain.AUTHOR_KEY, mWord.getAuthor())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -424,7 +424,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mRestorersText, CommonInputFragment.InputType.ARRAY_TEXT_INPUT)
                     .setArrayTextInputInfo(WordJsonDefine.Explain.RESTORERS_KEY, mWord.getRestorers())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -435,7 +435,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mImageView, CommonInputFragment.InputType.TEXT_INPUT)
                     .setTextInputInfo(WordJsonDefine.Explain.PICTURE_LINK, mWord.getPictureLink())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;
@@ -447,7 +447,7 @@ public class WordFragment extends Fragment {
 
             mViewList.add(new CommonInputFragment.InputViewType(mGifView, CommonInputFragment.InputType.TEXT_INPUT)
                     .setTextInputInfo(WordJsonDefine.Explain.PICTURE_LINK, mWord.getPictureLink())
-                    .setSaveData(bundle -> {
+                    .setSaveDataCallback(bundle -> {
                         if (null == bundle) {
                             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
                             return;

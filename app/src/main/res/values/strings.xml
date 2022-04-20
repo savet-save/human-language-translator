@@ -34,4 +34,7 @@
     <string name="word_restorers">"restorers : "</string>
 
     <string name="add_item">add item</string>
+
+    <string name="app_load">loading</string>
+    <string name="default_hint_load">loading..</string>
 </resources>

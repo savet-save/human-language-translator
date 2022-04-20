@@ -149,18 +149,18 @@ public class ImageHelper {
             Utils.logDebug(TAG, "image type :" + mImageType);
 
             // step 3. chek net status
-            if (!NetWorkHelper.checkNetworkStatus(mContext)) {
+            if (!NetworkHelper.checkNetworkStatus(mContext)) {
                 synchronized (syncObject) {
-                    if (!NetWorkHelper.checkNetworkStatus(mContext)) {
+                    if (!NetworkHelper.checkNetworkStatus(mContext)) {
                         Utils.outLog(TAG, "network not connect!");
-                        NetWorkHelper.waitNetworkConnect(mContext, syncObject);
+                        NetworkHelper.waitNetworkConnect(mContext, syncObject);
                     }
                 }
             }
 
             // step 4. request image data
-            NetWorkHelper.requestUrlData(mImageUrl,
-                    new NetWorkHelper.DownLoaderCallback() {
+            NetworkHelper.requestUrlData(mImageUrl,
+                    new NetworkHelper.DownLoaderCallback() {
                         @Override
                         public void onFailure(Exception e) {
                             Utils.logDebug(TAG, "image request fail");

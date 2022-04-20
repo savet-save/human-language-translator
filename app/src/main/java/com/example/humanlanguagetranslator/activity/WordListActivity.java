@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.example.humanlanguagetranslator.R;
 import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.Word;
+import com.example.humanlanguagetranslator.fragment.LoadWaitFragment;
 import com.example.humanlanguagetranslator.fragment.WordFragment;
 import com.example.humanlanguagetranslator.fragment.WordListFragment;
 import com.example.humanlanguagetranslator.util.GlobalHandler;
@@ -24,25 +25,35 @@ public class WordListActivity extends SingleFragmentActivity
     public static final String EXTRA_WORD_LIST = "EXTRA_WORD_LIST";
 
     private static final String TAG = "WordListActivity";
+    private static volatile boolean sIsInitialize = false;
 
     @Override
     protected Fragment createFragment() {
-        return WordListFragment.newInstance(getIntent());
+        if (sIsInitialize) {
+            return WordListFragment.newInstance(getIntent());
+        }
+        return LoadWaitFragment.newInstance(null);
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initEnvironment();
+        LoadWaitFragment.doAsyncTask(this::initEnvironment);
     }
 
     /**
      * init application environment support
      */
-    private void initEnvironment() {
+    private synchronized void initEnvironment() {
+        if (sIsInitialize) {
+            return;
+        }
 //        Utils.enableStrictMode(false);
         GlobalHandler.getInstance();
         Dictionary.getInstance().init(this);
+        sIsInitialize = true;
+
+        reloadShowFragment();
     }
 
     @Override
@@ -52,23 +63,23 @@ public class WordListActivity extends SingleFragmentActivity
 
     @Override
     public void onItemSelected(Word word, boolean isAddMode) {
-        if (Utils.isDualPane(this)) {
-            Intent intent = WordPagerActivity.newIntent(this, word.getId(), isAddMode);
-            startActivity(intent);
-        } else {
+        if (Utils.isDualPane()) {
+            Utils.logDebug(TAG, "onItemSelected()");
             Fragment newDetail = WordFragment.newInstance(word.getId(), isAddMode);
-
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_fragment_container, newDetail)
                     .commit();
+        } else {
+            Intent intent = WordPagerActivity.newIntent(this, word.getId(), isAddMode);
+            startActivity(intent);
         }
     }
 
     @Override
     public void onWordUpdated(Word word) {
-        WordListFragment listFragment = (WordListFragment)getSupportFragmentManager()
+        WordListFragment listFragment = (WordListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.default_fragment);
-        if ( null == listFragment) {
+        if (null == listFragment) {
             Utils.outLog(TAG, "not find word list fragment");
             return;
         }
@@ -77,8 +88,9 @@ public class WordListActivity extends SingleFragmentActivity
 
     /**
      * gets an intent to display the words
+     *
      * @param packagerContext context
-     * @param words must is ArrayList, if not show define words
+     * @param words           must is ArrayList, if not show define words
      * @return intent
      */
     public static Intent newIntent(Context packagerContext, List<Word> words) {

@@ -33,4 +33,6 @@
     <string name="word_author">作者：</string>
     <string name="word_restorers">修订者：</string>
     <string name="add_item">新增一项</string>
+    <string name="app_load">加载中</string>
+    <string name="default_hint_load">载入中..</string>
 </resources>

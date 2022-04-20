@@ -14,7 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-public class NetWorkHelper {
+public class NetworkHelper {
     private static final Timer mTimer = new Timer();
     private static final String TAG = "NetWorkHelper";
     private final static int DEFAULT_CONNECT_TIMEOUT = 5000; // 5s

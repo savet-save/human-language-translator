@@ -11,6 +11,8 @@ import com.example.humanlanguagetranslator.R;
 
 public abstract class SingleFragmentActivity extends Easy2ManagerActivity {
 
+    protected static final int DEFAULT_FRAGMENT_RESOURCES_ID = R.id.default_fragment;
+
     protected  abstract Fragment createFragment();
 
     @LayoutRes
@@ -24,14 +26,21 @@ public abstract class SingleFragmentActivity extends Easy2ManagerActivity {
         setContentView(getLayoutResId());
 
         FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.default_fragment);
+        Fragment fragment = fm.findFragmentById(DEFAULT_FRAGMENT_RESOURCES_ID);
 
         if (fragment == null) {
             fragment = createFragment();
             fm.beginTransaction()
-                    .add(R.id.default_fragment, fragment)
+                    .add(DEFAULT_FRAGMENT_RESOURCES_ID, fragment)
                     .commit();
         }
+    }
+
+    protected void reloadShowFragment() {
+        Fragment fragment = createFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(DEFAULT_FRAGMENT_RESOURCES_ID, fragment)
+                .commit();
     }
 
 }

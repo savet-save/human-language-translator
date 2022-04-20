@@ -378,10 +378,10 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         private Date mDate;
         private int mSelectItem;
         private String[] mSpinnerAllItem;
-        private SaveData mSaveData;
+        private SaveDataCallback mSaveDataCallback;
         private ArrayList<String> mContentList;
 
-        public interface SaveData {
+        public interface SaveDataCallback {
             void saveData(Bundle bundle);
         }
 
@@ -427,8 +427,8 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
             return this;
         }
 
-        public InputViewType setSaveData(SaveData saveData) {
-            mSaveData = saveData;
+        public InputViewType setSaveDataCallback(SaveDataCallback saveDataCallback) {
+            mSaveDataCallback = saveDataCallback;
             return this;
         }
 
@@ -440,8 +440,8 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         }
 
         @Nullable
-        public SaveData getSaveData() {
-            return mSaveData;
+        public SaveDataCallback getSaveDataCallback() {
+            return mSaveDataCallback;
         }
 
         public String getId() {

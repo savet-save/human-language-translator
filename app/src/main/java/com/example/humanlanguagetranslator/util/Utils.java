@@ -10,8 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.humanlanguagetranslator.ActivityManager;
 import com.example.humanlanguagetranslator.BuildConfig;
 import com.example.humanlanguagetranslator.R;
+import com.example.humanlanguagetranslator.activity.WordListActivity;
 
 import java.util.Iterator;
 import java.util.List;
@@ -86,11 +88,14 @@ public final class Utils {
         return builder.toString();
     }
 
-    public static boolean isDualPane(AppCompatActivity activity) {
-        if (null == activity) {
+    public static boolean isDualPane() {
+        String activityName = WordListActivity.class.getSimpleName();
+        AppCompatActivity wordListActivity = ActivityManager.findActivity(activityName);
+        if (null == wordListActivity) {
+            Utils.logDebug(TAG, "isDualPane fail : not find " + activityName +" in ActivityManager");
             return false;
         }
-        View viewById = activity.findViewById(R.id.detail_fragment_container);
+        View viewById = wordListActivity.findViewById(R.id.detail_fragment_container);
         return (null == viewById);
     }
 
