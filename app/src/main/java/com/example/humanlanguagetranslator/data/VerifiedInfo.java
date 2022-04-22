@@ -3,6 +3,11 @@ package com.example.humanlanguagetranslator.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.humanlanguagetranslator.helper.JsonHelper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Date;
 
 public class VerifiedInfo implements Parcelable {
@@ -74,7 +79,7 @@ public class VerifiedInfo implements Parcelable {
     }
 
     public VerifiedInfo() {
-        this(new Date(), new Date(), "",  "", false);
+        this(new Date(), new Date(), "", "", false);
     }
 
     public VerifiedInfo(Date verifiedTime, Date earliestTime, String earliestAddr, String other, boolean valid) {
@@ -105,5 +110,22 @@ public class VerifiedInfo implements Parcelable {
         dest.writeString(mEarliestAddr);
         dest.writeString(mOther);
         dest.writeInt(isValidFlag);
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(WordJsonDefine.Explain.VERIFIED_TIME_KEY, JsonHelper.getFormatDate(mVerifiedTime))
+                    .put(WordJsonDefine.Explain.EARLIEST_TIME_KEY,  JsonHelper.getFormatDate(mEarliestTime))
+                    .put(WordJsonDefine.Explain.EARLIEST_ADDR_KEY, mEarliestAddr)
+                    .put(WordJsonDefine.Explain.OTHER_KEY, mOther);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    public String toJsonString() {
+        return JsonHelper.getJsonString(toJSONObject());
     }
 }

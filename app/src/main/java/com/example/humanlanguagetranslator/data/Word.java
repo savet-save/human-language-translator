@@ -6,7 +6,11 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.humanlanguagetranslator.helper.JsonHelper;
 import com.example.humanlanguagetranslator.util.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Word implements Parcelable {
+    private static final String TAG = "Word";
     private static final String SYNONYM_SPLIT_REGEX = "%";
     private static final String SYNONYM_DEFAULT_FORMAT = " ";
 
@@ -28,6 +33,8 @@ public class Word implements Parcelable {
     private String mAuthor;
     private ArrayList<String> mRestorers;
     private String mPictureLink;
+
+    private int mNameListIndex = 0;
 
 
     public Word() {
@@ -88,6 +95,7 @@ public class Word implements Parcelable {
 
     /**
      * set word Content
+     *
      * @param content if is null, cancel set
      */
     public void setContent(String content) {
@@ -151,12 +159,12 @@ public class Word implements Parcelable {
     }
 
     /**
-     *  <p> get Format Synonym </p>
-     *  <p> default like : Synonym1 Synonym2 Synonym3 </p>
+     * <p> get Format Synonym </p>
+     * <p> default like : Synonym1 Synonym2 Synonym3 </p>
+     *
      * @param format default blank space
-     * @return
-     *  <p> example : format is ',' </p>
-     *  <p> Synonym1,Synonym2,Synonym3 </p>
+     * @return <p> example : format is ',' </p>
+     * <p> Synonym1,Synonym2,Synonym3 </p>
      */
     public String getFormatSynonym(@Nullable String format) {
         if (null == format) {
@@ -164,7 +172,7 @@ public class Word implements Parcelable {
         }
         StringBuilder builder = new StringBuilder();
         String[] synonym = mSynonym.split(SYNONYM_SPLIT_REGEX);
-        for (int i = 0; i <synonym.length; i++) {
+        for (int i = 0; i < synonym.length; i++) {
             builder.append(synonym[i]);
             if (i != synonym.length - 1) {
                 builder.append(format);
@@ -182,6 +190,7 @@ public class Word implements Parcelable {
 
     /**
      * set Synonym
+     *
      * @param formatSynonym use '%' joint synonym, example : Synonym1%Synonym2
      */
     public void setSynonym(String formatSynonym) {
@@ -192,6 +201,7 @@ public class Word implements Parcelable {
 
     /**
      * set Synonym
+     *
      * @param synonymList synonym list
      */
     public void setSynonym(List<String> synonymList) {
@@ -199,7 +209,7 @@ public class Word implements Parcelable {
             return;
         }
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i <  synonymList.size(); i++) {
+        for (int i = 0; i < synonymList.size(); i++) {
             stringBuilder.append(synonymList.get(i));
             if (i != synonymList.size() - 1) {
                 stringBuilder.append(SYNONYM_SPLIT_REGEX);
@@ -276,5 +286,49 @@ public class Word implements Parcelable {
             Utils.logDebug("setPictureLink : " + pictureLink);
             mPictureLink = pictureLink;
         }
+    }
+
+    /**
+     * return words name List index in Dictionary
+     * @return non-negative number
+     */
+    public int getNameListIndex() {
+        return mNameListIndex;
+    }
+
+    /**
+     * set Words index
+     * @param index non-negative number or less than words name list size in Dictionary
+     */
+    public void setNameListIndex(int index) {
+        if (mNameListIndex < 0 || index > Dictionary.getInstance().getNameListSize()) {
+            Utils.logDebug(TAG, "set index out of range : " + index);
+            return;
+        }
+        this.mNameListIndex = index;
+    }
+
+    @NonNull
+    public JSONObject toJSONObject() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(WordJsonDefine.Explain.WORD_KEY, mContent)
+                    .put(WordJsonDefine.Explain.SYNONYM_KEY, mSynonym)
+                    .put(WordJsonDefine.Explain.TYPE_KEY, mWordType.getName())
+                    .put(WordJsonDefine.Explain.TRANSLATION_KEY, JsonHelper.getJSONArrayFromStringList(mTranslations))
+                    .put(WordJsonDefine.Explain.QUARRY_KEY, JsonHelper.getJSONArrayFromStringList(mQuarries))
+                    .put(WordJsonDefine.Explain.EXAMPLE_KEY, JsonHelper.getJSONArrayFromStringList(mExamples))
+                    .put(WordJsonDefine.Explain.VERIFIED_INFO_KEY, mVerifiedInfo.toJSONObject())
+                    .put(WordJsonDefine.Explain.AUTHOR_KEY, mAuthor)
+                    .put(WordJsonDefine.Explain.RESTORERS_KEY, JsonHelper.getJSONArrayFromStringList(mRestorers))
+                    .put(WordJsonDefine.Explain.PICTURE_LINK, mPictureLink);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    public String toJsonString() {
+        return JsonHelper.getJsonString(toJSONObject());
     }
 }

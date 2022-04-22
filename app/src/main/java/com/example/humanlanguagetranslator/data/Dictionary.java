@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 
 import com.example.humanlanguagetranslator.helper.AssetsHelper;
-import com.example.humanlanguagetranslator.helper.JsonHelp;
+import com.example.humanlanguagetranslator.helper.JsonHelper;
 import com.example.humanlanguagetranslator.util.Utils;
 
 import org.json.JSONArray;
@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +34,8 @@ public class Dictionary {
 
     private static final Object BITMAPS_CACHE_LOCK = new Object();
     private final Map<UUID, byte[]> mImageCache;
+    private double mUseVersion = 1.0f;
+    private List<String> mWordsNameList = null;
 
     public static Dictionary getInstance() {
         if (sDictionary == null) {
@@ -65,13 +68,14 @@ public class Dictionary {
             return;
         }
         try {
-            double useVersion = defineJson.getDouble(WordJsonDefine.Explain.USE_VERSION_KEY);
+            mUseVersion = defineJson.getDouble(WordJsonDefine.Explain.USE_VERSION_KEY);
             JSONArray wordsName = defineJson.getJSONArray(WordJsonDefine.Explain.WORDS_KEY);
+            mWordsNameList = JsonHelper.getStringArrayList(wordsName);
             for (int i = 0; i < wordsName.length(); i++) {
                 Utils.logDebug(TAG, defineJson.toString());
                 JSONArray jsonArray = defineJson.getJSONArray(wordsName.getString(i));
                 for (int j = 0; j < jsonArray.length(); j++) {
-                    addWord(parseWord(jsonArray.getJSONObject(j)));
+                    addWord(parseWord(jsonArray.getJSONObject(j)), i);
                 }
             }
         } catch (JSONException e) {
@@ -90,20 +94,20 @@ public class Dictionary {
             String typeString = wordJson.getString(WordJsonDefine.Explain.TYPE_KEY);
             WordJsonDefine.WordType wordType = WordJsonDefine.WordType.getWordType(typeString);
 
-            ArrayList<String> translation = JsonHelp.getArrayListWithString(wordJson,
+            ArrayList<String> translation = JsonHelper.getArrayListWithString(wordJson,
                     WordJsonDefine.Explain.TRANSLATION_KEY);
 
-            ArrayList<String> quarry = JsonHelp.getArrayListWithString(wordJson,
+            ArrayList<String> quarry = JsonHelper.getArrayListWithString(wordJson,
                     WordJsonDefine.Explain.QUARRY_KEY);
 
-            ArrayList<String> example = JsonHelp.getArrayListWithString(wordJson,
+            ArrayList<String> example = JsonHelper.getArrayListWithString(wordJson,
                     WordJsonDefine.Explain.EXAMPLE_KEY);
 
             //verified info
             JSONObject verifiedInfoJson = wordJson.getJSONObject(WordJsonDefine.Explain.VERIFIED_INFO_KEY);
-            Date verifiedDate = JsonHelp.getDate(verifiedInfoJson,
+            Date verifiedDate = JsonHelper.getDate(verifiedInfoJson,
                     WordJsonDefine.Explain.VERIFIED_TIME_KEY);
-            Date earliestDate = JsonHelp.getDate(verifiedInfoJson,
+            Date earliestDate = JsonHelper.getDate(verifiedInfoJson,
                     WordJsonDefine.Explain.EARLIEST_TIME_KEY);
             String earliestAddr = verifiedInfoJson.getString(WordJsonDefine.Explain.EARLIEST_ADDR_KEY);
             String other = verifiedInfoJson.getString(WordJsonDefine.Explain.OTHER_KEY);
@@ -111,7 +115,7 @@ public class Dictionary {
 
             String author = wordJson.getString(WordJsonDefine.Explain.AUTHOR_KEY);
 
-            ArrayList<String> restorers = JsonHelp.getArrayListWithString(wordJson,
+            ArrayList<String> restorers = JsonHelper.getArrayListWithString(wordJson,
                     WordJsonDefine.Explain.RESTORERS_KEY);
 
             String pictureLink = wordJson.getString(WordJsonDefine.Explain.PICTURE_LINK);
@@ -218,15 +222,27 @@ public class Dictionary {
     }
 
     /**
-     * add word to cache
+     * add word to cache, mWordsNameList index is 0
+     *
      * @param word added word
      */
     public void addWord(@Nullable Word word) {
+        this.addWord(word, 0);
+    }
+
+    /**
+     * add word to cache
+     *
+     * @param word added word
+     * @param index mWordsNameList index
+     */
+    public void addWord(@Nullable Word word, int index) {
         if (null == word) {
             return;
         }
         synchronized (WORD_CACHE_LOCK) {
             mWords.add(word);
+            word.setNameListIndex(index);
         }
     }
 
@@ -273,5 +289,57 @@ public class Dictionary {
         synchronized (BITMAPS_CACHE_LOCK) {
             return mImageCache.get(uuid);
         }
+    }
+
+    @Nullable
+    public List<String> getWordsNameList() {
+        return mWordsNameList;
+    }
+
+    /**
+     * get words name list size
+     * @return last 0, if not has list
+     */
+    public int getNameListSize() {
+        if (null == mWordsNameList) {
+            return 0;
+        }
+        return mWordsNameList.size();
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(WordJsonDefine.Explain.USE_VERSION_KEY, mUseVersion)
+                    .put(WordJsonDefine.Explain.WORDS_KEY, JsonHelper.getJSONArrayFromStringList(mWordsNameList));
+            List <List<Word>> lists = getOrganizeWordList();
+            for (int i = 0; i < mWordsNameList.size(); i++) {
+                jsonObject.put(mWordsNameList.get(i), JsonHelper.getJSONArrayFromWordList(lists.get(i)));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    /**
+     * Create a List based on which Words the name belongs to
+     * @return a List
+     */
+    public List<List<Word>> getOrganizeWordList() {
+        List <List<Word>> lists = new ArrayList<>();
+        for (int i = 0; i < mWords.size(); i++) {
+            Word checkedWord = mWords.get(i);
+            //check index out of bounds
+            while (checkedWord.getNameListIndex() >= lists.size()) {
+                lists.add(new LinkedList<>());
+            }
+            lists.get(checkedWord.getNameListIndex()).add(checkedWord);
+        }
+        return lists;
+    }
+
+    public String toJsonString() {
+        return JsonHelper.getJsonString(toJSONObject());
     }
 }

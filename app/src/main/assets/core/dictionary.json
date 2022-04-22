@@ -1,7 +1,8 @@
 {
   "use_version": 1.0,
   "words": [
-    "words-ch"
+    "words-ch",
+    "words-en"
   ],
   "words-ch": [
     {
@@ -29,7 +30,7 @@
       "restorers": [
         ""
       ],
-      "picture_link" : "https://tvax4.sinaimg.cn/large/c3cb3fably1h14xcbkcobj20mw0k0mxs.jpg"
+      "picture_link": "https://tvax4.sinaimg.cn/large/c3cb3fably1h14xcbkcobj20mw0k0mxs.jpg"
     },
     {
       "word": "yysy",
@@ -55,7 +56,7 @@
       "restorers": [
         ""
       ],
-      "picture_link" : "https://wx4.sinaimg.cn/mw690/c3cb3fably1h1537ibq5qj205r062wei.jpg"
+      "picture_link": "https://wx4.sinaimg.cn/mw690/c3cb3fably1h1537ibq5qj205r062wei.jpg"
     },
     {
       "word": "dddd",
@@ -80,7 +81,36 @@
       "restorers": [
         ""
       ],
-      "picture_link" : "https://wx3.sinaimg.cn/mw690/c3cb3fably1h164xpmcxlg20a00720uf.gif"
+      "picture_link": "https://wx3.sinaimg.cn/mw690/c3cb3fably1h164xpmcxlg20a00720uf.gif"
+    }
+  ],
+  "words-en": [
+    {
+      "word": "yyds",
+      "synonym": "",
+      "type": "verified",
+      "translation": [
+        "Generally speaking, it is the initials of network language, full name: eternal god/eternal god, generally used to express praise to each other, or used for the affirmation and appreciation of things",
+        "Eternal god means 'eternal god' and expresses love and belief in someone or something. Because it can be used in a wide range, it is convenient to spread but also can play the meme"
+      ],
+      "quarry": [
+        "The origin of this meme is because Sanoro (former pro/anchor) once called Uzi this way during his live broadcast. He called Uzi the Eternal God. Later, as the water friends kept repeating, it became a popular meme today."
+      ],
+      "example": [
+        "百事可乐，yyds!",
+        "乌兹，yyds。"
+      ],
+      "verified_info": {
+        "verified_time": "2021-10-06",
+        "earliest_time": "2019-11-02",
+        "earliest_addr": "https://zhidao.baidu.com/question/655796786147620525.html",
+        "other": ""
+      },
+      "author": "savet_save@163.com",
+      "restorers": [
+        ""
+      ],
+      "picture_link": "https://tvax4.sinaimg.cn/large/c3cb3fably1h14xcbkcobj20mw0k0mxs.jpg"
     }
   ]
 }

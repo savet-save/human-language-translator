@@ -60,7 +60,7 @@ public class NetworkHelper {
 
     /**
      * wait Network Connect, then Wakes up all threads that are waiting on this object's monitor
-     * <pre>use like :
+     * <pre> use like :
      *  Object syncObject = new Object;
      *  synchronized (syncObject) {
      *      NetWorkHelper.waitNetWorkConnect(context, syncObject);

@@ -89,6 +89,7 @@ public class WordListFragment extends Fragment {
             mFragmentManager = activity.getSupportFragmentManager();
             updateUI();
         }
+//        Utils.logDebug(TAG, "dictionary : \n" + Dictionary.getInstance().toJsonString());
         return view;
     }
 
