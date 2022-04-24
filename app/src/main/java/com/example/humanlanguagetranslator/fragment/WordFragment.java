@@ -7,6 +7,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Movie;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,11 +27,13 @@ import com.example.humanlanguagetranslator.data.Dictionary;
 import com.example.humanlanguagetranslator.data.VerifiedInfo;
 import com.example.humanlanguagetranslator.data.Word;
 import com.example.humanlanguagetranslator.data.WordJsonDefine;
+import com.example.humanlanguagetranslator.helper.FileHelper;
 import com.example.humanlanguagetranslator.helper.ImageHelper;
 import com.example.humanlanguagetranslator.util.GlobalHandler;
 import com.example.humanlanguagetranslator.util.Utils;
 import com.example.humanlanguagetranslator.view.GifView;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -85,6 +90,8 @@ public class WordFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
         Bundle arguments = getArguments();
         if (null != arguments) {
             UUID wordId = (UUID) arguments.getSerializable(ARGS_WORD_ID);
@@ -130,6 +137,33 @@ public class WordFragment extends Fragment {
                 }
             });
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.tool_word_details, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case Utils.ID_MENU_SAVE:
+                GlobalHandler.getInstance().post2BackgroundHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utils.logDebug(TAG, "save word to dictionary.json file..");
+                        FileHelper.saveFile(Dictionary.getInstance().toJsonString().getBytes(StandardCharsets.UTF_8),
+                                Dictionary.DICTIONARY_FILE_NAME,
+                                getActivity(),
+                                FileHelper.SaveDir.JSON_DATE);
+                    }
+                });
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return true;
     }
 
     @Override

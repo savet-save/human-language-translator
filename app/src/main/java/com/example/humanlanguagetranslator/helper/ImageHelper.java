@@ -103,8 +103,9 @@ public class ImageHelper {
         /**
          * create a can change it dynamically image url requestImage,
          * and save to cache, save or read image from file
-         * @param context context
-         * @param word request word
+         *
+         * @param context      context
+         * @param word         request word
          * @param forceRequest save or read image file name
          */
         public RequestImage(Context context, Word word, boolean forceRequest) {
@@ -129,7 +130,9 @@ public class ImageHelper {
         private void dealWithImage() {
             // step 1. check local
             if (!mForceRequest && !Utils.isEmptyString(mFileName)) {
-                byte[] imageData = FileHelper.readFile(mFileName + getSuffix(), mContext);
+                byte[] imageData = FileHelper.readFile(mFileName + getSuffix(),
+                        mContext,
+                        FileHelper.SaveDir.IMAGE_DATE);
                 if (null != imageData) {
                     updateImage(imageData);
                     saveToCache(imageData);
@@ -200,7 +203,10 @@ public class ImageHelper {
             if (Utils.isEmptyString(mFileName)) {
                 return;
             }
-            if (FileHelper.saveFile(data, mFileName + getSuffix(), mContext)) {
+            if (FileHelper.saveFile(data,
+                    mFileName + getSuffix(),
+                    mContext,
+                    FileHelper.SaveDir.IMAGE_DATE)) {
                 Utils.logDebug(TAG, "save " + mFileName + " file success");
             }
         }

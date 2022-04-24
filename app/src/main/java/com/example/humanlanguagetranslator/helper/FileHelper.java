@@ -14,19 +14,33 @@ import java.io.IOException;
 
 public class FileHelper {
     private static final String TAG = "FileHelper";
-    private static final String DATA_PATH_NAME = "ImageData";
     private static final int READ_TO_END_FLAG = -1;
+
+    public enum SaveDir {
+        IMAGE_DATE("ImageData"),
+        JSON_DATE("JsonData");
+
+        private final String mDirName;
+
+        private SaveDir(String dirName) {
+            mDirName = dirName;
+        }
+
+        public String getDirName() {
+            return mDirName;
+        }
+    }
 
     /**
      * 保存文件
      */
-    public static boolean saveFile(byte[] data, String fileName, Context context) {
-        if (null == data || null == fileName || null == context) {
+    public static boolean saveFile(byte[] data, String fileName, Context context, SaveDir saveDir) {
+        if (null == data || Utils.isEmptyString(fileName) || null == context || null == saveDir) {
             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
             return false;
         }
 
-        File dirFile = new File(context.getFilesDir() + DATA_PATH_NAME);
+        File dirFile = context.getDir(saveDir.getDirName(), Context.MODE_PRIVATE);
         if (!dirFile.exists()) {
             boolean result = dirFile.mkdir();
             if (!result) {
@@ -64,13 +78,13 @@ public class FileHelper {
      * @return read data from file, if error is null
      */
     @Nullable
-    public static byte[] readFile(String fileName, Context context) {
-        if (Utils.isEmptyString(fileName) || null == context) {
+    public static byte[] readFile(String fileName, Context context, SaveDir saveDir) {
+        if (Utils.isEmptyString(fileName) || null == context || null == saveDir) {
             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
             return null;
         }
 
-        File dirFile = new File(context.getFilesDir() + DATA_PATH_NAME);
+        File dirFile = context.getDir(saveDir.getDirName(), Context.MODE_PRIVATE);
         if (!dirFile.exists()) {
             boolean result = dirFile.mkdir();
             if (!result) {
@@ -98,7 +112,7 @@ public class FileHelper {
             fileInputStream.close();
             byteArrayOutputStream.close();
         } catch (IOException e) {
-            Utils.outLog(TAG, "save to file fail : " + e.getMessage());
+            Utils.outLog(TAG, "read to file fail : " + e.getMessage());
             return null;
         }
         return byteArrayOutputStream.toByteArray();

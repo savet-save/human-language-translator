@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.SearchView;
 
@@ -147,7 +148,7 @@ public class SearchFragment extends Fragment {
 
     private class HistoryHolder extends RecyclerView.ViewHolder {
 
-        private Button mButton;
+        private final Button mButton;
 
         public HistoryHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_history, parent, false));

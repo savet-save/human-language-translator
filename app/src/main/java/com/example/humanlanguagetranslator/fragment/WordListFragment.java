@@ -133,14 +133,14 @@ public class WordListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mCreateArguments = getArguments();
+
+        updateAppTitle(getString(R.string.app_title));
     }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.tool_word_list, menu);
-
-        updateAppTitle(getString(R.string.app_title));
     }
 
     /**

@@ -21,11 +21,16 @@ import java.util.UUID;
 
 public final class Utils {
     /**
-     * id
+     * word list menu id
      */
     public static final int ID_ADD_WORD = R.id.menu_item_add_word;
     public static final int ID_SEARCH_WORD = R.id.menu_item_search_word;
     public static final int ID_MENU_ABOUT = R.id.menu_item_about;
+
+    /**
+     * word menu id
+     */
+    public static final int ID_MENU_SAVE = R.id.menu_item_save;
 
     public static final int ERROR_CONTEXT = 0;
     public static final int MAX_LONG_SHOW_LENGTH = String.valueOf(Long.MAX_VALUE).length();

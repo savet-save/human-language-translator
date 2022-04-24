@@ -185,4 +185,14 @@ public class JsonHelper {
         }
         return string;
     }
+
+    @Nullable
+    public static JSONObject parseBytes(byte[] data) {
+        try {
+            return new JSONObject(new String(data));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

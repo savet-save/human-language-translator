@@ -23,7 +23,7 @@ public class SearchActivity extends SingleFragmentActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);// must be called before adding content
         super.onCreate(savedInstanceState);
     }
 }

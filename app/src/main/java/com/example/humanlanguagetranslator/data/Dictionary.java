@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 
 import com.example.humanlanguagetranslator.helper.AssetsHelper;
+import com.example.humanlanguagetranslator.helper.FileHelper;
 import com.example.humanlanguagetranslator.helper.JsonHelper;
 import com.example.humanlanguagetranslator.util.Utils;
 
@@ -23,7 +24,8 @@ import java.util.regex.Pattern;
 
 public class Dictionary {
     public static final int NOT_FOUND_POSITION = -1;
-    public static final String DICTIONARY_PATH = "core/dictionary.json";
+    public static final String DICTIONARY_ASSETS_PATH = "core/dictionary.json";
+    public static final String DICTIONARY_FILE_NAME = "dictionary.json";
 
     private static final String TAG = "Dictionary";
 
@@ -62,7 +64,16 @@ public class Dictionary {
     }
 
     private void parseDictionary(Context context) {
-        JSONObject defineJson = AssetsHelper.getInstance().getJsonAssets(context, DICTIONARY_PATH);
+        byte[] bytes = FileHelper.readFile(DICTIONARY_FILE_NAME, context, FileHelper.SaveDir.JSON_DATE);
+        JSONObject defineJson = null;
+        if (bytes != null) {
+            Utils.logDebug(TAG, "try use file dictionary.json");
+            defineJson = JsonHelper.parseBytes(bytes);
+        }
+        if (null == defineJson) {
+            Utils.logDebug(TAG, "use assets dictionary.json");
+            defineJson = AssetsHelper.getInstance().getJsonAssets(context, DICTIONARY_ASSETS_PATH);
+        }
         if (null == defineJson) {
             Utils.logDebug(TAG, "warning : can't get dictionary json object");
             return;

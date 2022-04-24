@@ -387,7 +387,6 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
 
         public InputViewType(View view, InputType inputType) {
             mId = Utils.getNotRepeatId();
-            Utils.logDebug(TAG, mId);
             mView = view;
             mInputType = inputType;
             mSelectItem = 0;

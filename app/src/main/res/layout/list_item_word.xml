@@ -12,7 +12,6 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@color/blue"
         android:contentDescription="@string/word_null"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
