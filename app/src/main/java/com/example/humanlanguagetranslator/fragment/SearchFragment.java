@@ -92,7 +92,7 @@ public class SearchFragment extends Fragment {
         }
         Intent intent = null;
         if (filterResult.size() == 1) {
-            intent = WordPagerActivity.newIntent(getActivity(), filterResult.get(0).getId(), false);
+            intent = WordPagerActivity.newIntent(getActivity(), filterResult.get(0), false);
             Utils.logDebug(TAG, "start word pager");
         } else {
             intent = WordListActivity.newIntent(getActivity(), filterResult);

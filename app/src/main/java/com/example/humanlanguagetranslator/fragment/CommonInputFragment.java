@@ -186,7 +186,7 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         ArrayList<String> arrayList = null;
         if (null != arguments) {
             arrayList = arguments.getStringArrayList(ARG_ARRAY_LIST_CONTENT);
-            Utils.removeEmptyItem(arrayList);
+            Utils.removeEmptyItem(arrayList); // keep input clean
         }
         if (null == arrayList) {
             arrayList = new ArrayList<>(); // must has
@@ -294,6 +294,8 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
                 }
                 if (null == inputContent) {
                     inputContent = new ArrayList<>();
+                } else {
+                    Utils.removeEmptyItem(inputContent); // keep output clean
                 }
                 result.putStringArrayList(RESULT_INPUT_ARRAY_CONTENT, inputContent);
                 break;

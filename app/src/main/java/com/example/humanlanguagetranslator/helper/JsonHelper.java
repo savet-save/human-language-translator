@@ -59,25 +59,23 @@ public class JsonHelper {
      * @param jsonObject from jsonObject
      * @param dateKey    Date json key
      * @return Date , if parameter is null , not find dateKey from jsonObject or String parse error
-     * return a current time Date
+     * return null
      */
-    @NonNull
+    @Nullable
     public static Date getDate(JSONObject jsonObject, String dateKey) {
         Date date = null;
         if (null == jsonObject || null == dateKey) {
             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
-            return new Date();
+            return null;
         }
         try {
             String dateString = jsonObject.getString(dateKey);
-            if (!dateString.isEmpty()) {
-                date = new SimpleDateFormat(DATE_DEFAULT_PATTERN, Locale.getDefault()).parse(dateString);
+            if (Utils.isEmptyString(dateString)) {
+                return null;
             }
+            date = new SimpleDateFormat(DATE_DEFAULT_PATTERN, Locale.getDefault()).parse(dateString);
         } catch (JSONException | ParseException e) {
             e.printStackTrace();
-        }
-        if (null == date) {
-            date = new Date();
         }
         return date;
     }

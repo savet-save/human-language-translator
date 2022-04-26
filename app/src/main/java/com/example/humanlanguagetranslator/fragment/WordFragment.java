@@ -2,9 +2,11 @@ package com.example.humanlanguagetranslator.fragment;
 
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Movie;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -12,12 +14,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -41,14 +44,16 @@ import java.util.List;
 import java.util.UUID;
 
 public class WordFragment extends Fragment {
-    private static final String ARGS_WORD_ID = "args_word_id";
+    private static final String ARGS_WORD_ID = "ARGS_WORD_ID";
+    private static final String ARGS_MODIFY_MODE = "ARGS_MODIFY_MODE";
     private static final String TAG = "WordFragment";
     private static final String COMMON_INPUT_DIALOG_TAG = "InputDialog";
-    private static final String ARGS_ADD_MODE = "ARGS_ADD_MODE";
 
+    /**
+     * not null after onCreate()
+     */
     private Word mWord;
     private TextView mSynonymText;
-    private Button mDateButton;
     private TextView mVerifiedDateText;
     private OnWordUpdatedCallback mCallback;
     @Nullable
@@ -66,7 +71,7 @@ public class WordFragment extends Fragment {
     private ImageView mImageView;
     private GifView mGifView;
     private ImageHelper.RequestImage mRequestImage;
-    private boolean isAddMode;
+    private boolean isModifyMode;
     private List<CommonInputFragment.InputViewType> mViewList;
 
     public interface OnWordUpdatedCallback {
@@ -88,24 +93,39 @@ public class WordFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(ARGS_WORD_ID, null == mWord ? null : mWord.getId());
+        outState.putBoolean(ARGS_MODIFY_MODE, isModifyMode);
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
         Bundle arguments = getArguments();
+        if (null == arguments) {
+            //for check save state
+            arguments = savedInstanceState;
+        }
         if (null != arguments) {
             UUID wordId = (UUID) arguments.getSerializable(ARGS_WORD_ID);
             mWord = Dictionary.getInstance().getWord(wordId);
-            isAddMode = arguments.getBoolean(ARGS_ADD_MODE);
-            if (mWord != null) {
-                mRequestImage = new ImageHelper.RequestImage(getActivity(), mWord, false) {
-                    @Override
-                    public void updateImage(byte[] data) {
-                        myUpdateImage(data);
-                    }
-                };
-            }
+            isModifyMode = arguments.getBoolean(ARGS_MODIFY_MODE);
         }
+
+        if (null == mWord) {
+            mWord = new Word(); // must not is null
+        }
+
+        mRequestImage = new ImageHelper.RequestImage(getActivity(), mWord, false) {
+            @Override
+            public void updateImage(byte[] data) {
+                myUpdateImage(data);
+            }
+        };
+
         FragmentActivity activity = getActivity();
         if (null != activity) {
             mFragmentManager = activity.getSupportFragmentManager();
@@ -142,6 +162,10 @@ public class WordFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        if (menu.hasVisibleItems()) {
+            menu.clear(); // keep is empty
+            Utils.logDebug(TAG, "clean menu items");
+        }
         inflater.inflate(R.menu.tool_word_details, menu);
     }
 
@@ -149,16 +173,25 @@ public class WordFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case Utils.ID_MENU_SAVE:
-                GlobalHandler.getInstance().post2BackgroundHandler(new Runnable() {
-                    @Override
-                    public void run() {
-                        Utils.logDebug(TAG, "save word to dictionary.json file..");
-                        FileHelper.saveFile(Dictionary.getInstance().toJsonString().getBytes(StandardCharsets.UTF_8),
-                                Dictionary.DICTIONARY_FILE_NAME,
-                                getActivity(),
-                                FileHelper.SaveDir.JSON_DATE);
-                    }
-                });
+                String errorInfo = null;
+                if (null == mWord || mWord.getWordType() != WordJsonDefine.WordType.VERIFIED) {
+                    errorInfo = getString(R.string.not_save_info);
+                } else {
+                    errorInfo = getString(R.string.not_save_info_with_verified);
+                }
+                if (null == mWord || !mWord.checkWordValidity()) {
+                    Toast.makeText(getActivity(), errorInfo, Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                }
+                Dictionary.getInstance().addWord(mWord);
+                saveToFileInBackground();
+                if (isModifyMode) {
+                    buildModeChange(false);
+                }
+                break;
+            case Utils.ID_MENU_BUILD:
+                buildModeChange(!isModifyMode);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -184,29 +217,31 @@ public class WordFragment extends Fragment {
         mImageView = layout.findViewById(R.id.details_word_item_image);
         mGifView = layout.findViewById(R.id.details_word_item_gif_image);
 
-        updateViewList();
+        initImageHint(getActivity());
+
+        try {
+            updateViewList();
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            return null;
+        }
         setAllOnClick();
         setAllResultListener();
 
-        if (!isAddMode) {
+        if (!isModifyMode) {
             setAllClickable(false);
         }
-
-        //only test
-        mDateButton = layout.findViewById(R.id.details_word_set_date);
-        mDateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isAddMode = !isAddMode;
-                setAllClickable(isAddMode);
-                updateAllUI();
-            }
-        });
 
         //set show data
         updateAllUI();
 
         return layout;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateTitle();
     }
 
     private void setAllClickable(boolean mode) {
@@ -322,11 +357,10 @@ public class WordFragment extends Fragment {
         dialog.show(mFragmentManager, COMMON_INPUT_DIALOG_TAG);
     }
 
-    private void updateViewList() {
+    private void updateViewList() throws Exception {
         if (null == mWord) { // There has to be one Word
-            mWord = new Word();
-            Dictionary.getInstance().addWord(mWord);
-            Utils.outLog(TAG, "initViewList() warning : word is null , create a new Word");
+            Utils.outLog(TAG, "initViewList() error : word is null");
+            throw new Exception("mWord is null");
         }
 
         if (null == mViewList) {
@@ -499,6 +533,53 @@ public class WordFragment extends Fragment {
         cleanAllResultListener();
     }
 
+    private void buildModeChange(boolean enable) {
+        isModifyMode = enable;
+        setAllClickable(isModifyMode);
+        updateAllUI();
+    }
+
+    private void saveToFileInBackground() {
+        GlobalHandler.getInstance().post2BackgroundHandler(new Runnable() {
+            @Override
+            public void run() {
+                Utils.logDebug(TAG, "save word to dictionary.json file..");
+                FileHelper.saveFile(Dictionary.getInstance().toJsonString().getBytes(StandardCharsets.UTF_8),
+                        Dictionary.DICTIONARY_FILE_NAME,
+                        getActivity(),
+                        FileHelper.SaveDir.JSON_DATE);
+            }
+        });
+    }
+
+    private void updateTitle() {
+        FragmentActivity activity = getActivity();
+        if (null == activity) {
+            Utils.outLog(TAG, "updateTitle fail : can't get activity");
+            return;
+        }
+        if (isModifyMode) {
+            activity.setTitle(getString(R.string.modifying_word));
+        } else if (!Utils.isEmptyString(mWord.getContent())) {
+            activity.setTitle(mWord.getContent());
+        } else {
+            activity.setTitle(R.string.app_title);
+        }
+    }
+
+    // only need call once on created
+    private void initImageHint(FragmentActivity activity) {
+        if (null == activity) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+            return;
+        }
+        if (Utils.isZhEnv(activity)) {
+            Resources res = activity.getResources();
+            Drawable myImage = ResourcesCompat.getDrawable(res, R.drawable.ic_set_image_zh, null);
+            mImageView.setImageDrawable(myImage);
+        }
+    }
+
     /**
      * set show text in view
      *
@@ -511,11 +592,25 @@ public class WordFragment extends Fragment {
             Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
             return;
         }
+        setViewVisibility(view, isGone);
+        view.setText(value);
+    }
+
+
+    /**
+     * set view is gone
+     *
+     * @param view   view
+     * @param isGone is gone
+     */
+    private void setViewVisibility(View view, boolean isGone) {
+        if (null == view) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+            return;
+        }
         if (isGone) {
             view.setVisibility(View.GONE);
         }
-        view.setText(value);
-
     }
 
     private void updateWordListUI() {
@@ -524,47 +619,18 @@ public class WordFragment extends Fragment {
         }
     }
 
-    // 可见时
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (null == mFragmentManager) {
-            return;
-        }
-        mFragmentManager.setFragmentResultListener("test" + mWord.getId(),
-                this,
-                (requestKey, result) -> {
-                    String text = result.getString(CommonInputFragment.RESULT_TEXT_KEY);
-                    Utils.logDebug(TAG, "text :" + text);
-                    mDateButton.setText(text);
-                });
-    }
-
-    // 不可见时
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (null == mFragmentManager) {
-            return;
-        }
-        Utils.logDebug(TAG, "clear Fragment Result Listener id : "
-                + (mWord == null ? "null word" : mWord.getId()));
-        mFragmentManager.clearFragmentResultListener("test" + mWord.getId());
-    }
-
     private void updateAllUI() {
         if (null == mWord) {
             Utils.logDebug(TAG, "update UI fail : mWord is null");
             return;
         }
-        Utils.logDebug(TAG, "call updateAllUI(), isAddMode : " + isAddMode);
+        Utils.logDebug(TAG, "call updateAllUI(), is Modify Mode : " + isModifyMode);
 
         setTextShowUI(mContentText, mWord.getContent(), false);
 
         String formatSynonym = mWord.getFormatSynonym(null);
         String synonym = getString(R.string.format_word_synonym, formatSynonym);
         setTextShowUI(mSynonymText, synonym, Utils.isEmptyString(formatSynonym));
-        Utils.logDebug(TAG, synonym);
 
         String type = getString(R.string.format_word_type, mWord.getWordType().getName());
         setTextShowUI(mTypeText, type, false);
@@ -583,9 +649,8 @@ public class WordFragment extends Fragment {
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
-        Utils.logDebug(TAG, "verifiedDate :" + verifiedDate + " valid : " + verifiedInfo.isValid());
         setTextShowUI(mVerifiedDateText, getString(R.string.verified_date) + verifiedDate,
-                !verifiedInfo.isValid());
+                !verifiedInfo.getVerifiedTimeValid());
 
         calendar.setTime(verifiedInfo.getEarliestTime());
         String earliestDate = getString(R.string.format_word_data,
@@ -593,7 +658,7 @@ public class WordFragment extends Fragment {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
         setTextShowUI(mEarliestDateText, getString(R.string.earliest_date) + earliestDate,
-                !verifiedInfo.isValid());
+                !verifiedInfo.getEarliestTimeValid());
 
         String earliestAddr = verifiedInfo.getEarliestAddr();
         setTextShowUI(mEarliestAddrText, getString(R.string.earliest_addr) + earliestAddr,
@@ -610,7 +675,8 @@ public class WordFragment extends Fragment {
         setTextShowUI(mRestorersText, getString(R.string.word_restorers) + restorers,
                 Utils.isEmptyString(restorers));
 
-
+        setViewVisibility(mImageView, Utils.isEmptyString(mWord.getPictureLink()));
+        setViewVisibility(mGifView, Utils.isEmptyString(mWord.getPictureLink()));
         byte[] imageData = Dictionary.getInstance().getImageData(mWord.getId());
         if (imageData != null) {
             myUpdateImage(imageData);
@@ -618,7 +684,7 @@ public class WordFragment extends Fragment {
             requestNewImage();
         }
 
-        if (isAddMode) {
+        if (isModifyMode) {
             for (CommonInputFragment.InputViewType inputViewType : mViewList) {
                 View view = inputViewType.getView();
                 if (view instanceof TextView) {
@@ -628,19 +694,24 @@ public class WordFragment extends Fragment {
                     }
                     ((TextView) view).setText(Utils.isEmptyString(text) ? inputViewType.getTitle() : text);
                     view.setVisibility(View.VISIBLE);
+                } else if (mImageView != null && mImageView.getVisibility() == View.GONE) {
+                    mImageView.setVisibility(View.VISIBLE); // for set link
                 }
             }
         }
+
+        updateTitle();
     }
 
     private void requestNewImage() {
+        Utils.logDebug(TAG, "requestNewImage");
         GlobalHandler.getInstance().post2BackgroundHandler(mRequestImage);
     }
 
-    public static WordFragment newInstance(UUID wordId, boolean isAddMode) {
+    public static WordFragment newInstance(@Nullable Word word, boolean isAddWord) {
         Bundle args = new Bundle();
-        args.putSerializable(ARGS_WORD_ID, wordId);
-        args.putBoolean(ARGS_ADD_MODE, isAddMode);
+        args.putSerializable(ARGS_WORD_ID, null == word ? null : word.getId());
+        args.putBoolean(ARGS_MODIFY_MODE, isAddWord);
 
         WordFragment wordFragment = new WordFragment();
         wordFragment.setArguments(args);

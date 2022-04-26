@@ -85,6 +85,7 @@ public class Word implements Parcelable {
         }
     };
 
+    @NonNull
     public UUID getId() {
         return mId;
     }
@@ -330,5 +331,39 @@ public class Word implements Parcelable {
 
     public String toJsonString() {
         return JsonHelper.getJsonString(toJSONObject());
+    }
+
+    /**
+     * Check the validity of words
+     * @return validity
+     */
+    public boolean checkWordValidity() {
+        //TODO 待完成
+        switch (mWordType){
+            case VERIFIED:
+                if (null == mVerifiedInfo ||
+                        !mVerifiedInfo.getVerifiedTimeValid() ||
+                        !mVerifiedInfo.getEarliestTimeValid() ||
+                        Utils.isEmptyString(mVerifiedInfo.getEarliestAddr())){
+                    return false;
+                }
+            case UNVERIFIED:
+            case UNDEFINE:
+                if (Utils.isEmptyString(mContent)) {
+                    return false;
+                }
+                // not need
+//                if (null == mWordType) {
+//                    return false;
+//                }
+                if (Utils.isEmptyStringList(mTranslations)) {
+                    return false;
+                }
+                break;
+            default:
+                Utils.outLog(TAG, "need to implement word type!");
+                return false;
+        }
+        return true;
     }
 }

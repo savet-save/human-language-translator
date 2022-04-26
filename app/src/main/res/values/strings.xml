@@ -21,12 +21,13 @@
         Github address : null\n
     </string>
     <string name="save_word">save</string>
+    <string name="build_word">build</string>
 
     <string name="app_title">translator</string>
 
     <string name="format_word_synonym">synonym : %1$s</string>
     <string name="format_word_type">type : %1$s</string>
-    <string name="format_word_data">%1$04d year %2$02d mount %3$02d day</string>
+    <string name="format_word_data">%1$04d year %2$02d month %3$02d day</string>
 
     <string name="verified_date">"Verified date : "</string>
     <string name="earliest_date">"Earliest date : "</string>
@@ -38,4 +39,11 @@
 
     <string name="app_load">loading</string>
     <string name="default_hint_load">loading..</string>
+
+    <string name="modifying_word">modifying..</string>
+    <string name="not_save_info">can\'t save : at least a word name and a translator are required</string>
+    <string name="not_save_info_with_verified">
+        can\'t save : at least a word name and a translator are required and
+        Verified info（Verified date, Earliest date and earliest address）
+    </string>
 </resources>

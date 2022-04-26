@@ -123,7 +123,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:background="@color/blue"
+            android:src="@drawable/ic_set_image_en"
             android:contentDescription="@string/word_null"
             android:visibility="visible" />
 
@@ -135,17 +135,6 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:visibility="gone" />
-
-
-        <Button
-            android:id="@+id/details_word_set_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@string/date_select_date" />
-
 
     </LinearLayout>
 </com.example.humanlanguagetranslator.view.MaxHeightScrollView>

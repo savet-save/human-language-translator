@@ -116,7 +116,7 @@ public class ArrayInputHelper {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (!Utils.isEmptyString(s.toString())) {
+                    if (s != null) {
                         mDatas.set(holder.getAdapterPosition(), s.toString());
                     }
                 }

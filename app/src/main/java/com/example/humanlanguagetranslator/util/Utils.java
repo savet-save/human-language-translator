@@ -1,5 +1,6 @@
 package com.example.humanlanguagetranslator.util;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.StrictMode;
 import android.util.Log;
@@ -17,6 +18,7 @@ import com.example.humanlanguagetranslator.activity.WordListActivity;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public final class Utils {
@@ -31,8 +33,8 @@ public final class Utils {
      * word menu id
      */
     public static final int ID_MENU_SAVE = R.id.menu_item_save;
+    public static final int ID_MENU_BUILD = R.id.menu_item_build;
 
-    public static final int ERROR_CONTEXT = 0;
     public static final int MAX_LONG_SHOW_LENGTH = String.valueOf(Long.MAX_VALUE).length();
 
     private static long sSequenceNumber = 0;
@@ -46,7 +48,8 @@ public final class Utils {
 
     public enum OutLogType {
         PARAMETER_NULL_ERROR,
-        PARAMETER_NULL_WARNING
+        PARAMETER_NULL_WARNING,
+        PARAMETER_STRING_NULL_OR_EMPTY
     }
 
     public static void logDebug(String msg) {
@@ -69,7 +72,7 @@ public final class Utils {
         Log.d(tag, msg);
     }
 
-    public static void outLog(String tag, OutLogType type) {
+    public static void outLog(String tag, @NonNull OutLogType type) {
         String builder = getCallStack();
         switch (type) {
             case PARAMETER_NULL_ERROR:
@@ -77,6 +80,12 @@ public final class Utils {
                 break;
             case PARAMETER_NULL_WARNING:
                 Log.d(tag, "Waring : parameter is null, call stack - " + builder);
+                break;
+            case PARAMETER_STRING_NULL_OR_EMPTY:
+                Log.d(tag, "Waring : parameter string is null or empty, call stack - " + builder);
+                break;
+            default:
+                Log.d(tag, "Waring : need implementation type : " + type);
                 break;
         }
     }
@@ -116,10 +125,10 @@ public final class Utils {
     }
 
     /**
-     * 根据手机的分辨率从 px(像素) 的单位 转成为 dp
+     * Change from px(pixels) to dp based on phone's resolution
      *
-     * @param pxValue 像素值
-     * @return 转换完成的dp值
+     * @param pxValue pixels value
+     * @return dp value
      */
     public static int px2dp(float pxValue) {
         final float scale = Resources.getSystem().getDisplayMetrics().density;
@@ -127,10 +136,10 @@ public final class Utils {
     }
 
     /**
-     * 根据手机的分辨率从 dp 的单位 转成为 px
+     * Change from dp to px based on phone's resolution
      *
-     * @param dpValue 像素值
-     * @return 转换完成的px值
+     * @param dpValue pixels value
+     * @return pixels value
      */
     public static int dp2px(float dpValue) {
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, Resources.getSystem().getDisplayMetrics());
@@ -179,6 +188,17 @@ public final class Utils {
      */
     public static boolean isEmptyString(String s) {
         return (null == s || s.isEmpty());
+    }
+
+    /**
+     * Checks if the string list is empty
+     *
+     * @param list string list
+     * @return <p> true : list is null or empty or first element is empty</p>
+     * <p> false : not is empty </p>
+     */
+    public static boolean isEmptyStringList(List<String> list) {
+        return null == list || list.isEmpty() || list.get(0).isEmpty();
     }
 
     public static void enableStrictMode(boolean isCloseApp) {
@@ -230,5 +250,20 @@ public final class Utils {
                 iterator.remove();
             }
         }
+    }
+
+    /**
+     * judge is Chinese environment
+     * @param context context
+     * @return is or not is Chinese environment
+     */
+    public static boolean isZhEnv(Context context) {
+        if (null == context) {
+            outLog(TAG, OutLogType.PARAMETER_NULL_WARNING);
+            return false;
+        }
+        Locale locale = context.getResources().getConfiguration().locale;
+        String language = locale.getLanguage();
+        return language.endsWith(new Locale("zh").getLanguage());
     }
 }

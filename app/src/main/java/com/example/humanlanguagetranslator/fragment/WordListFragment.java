@@ -55,7 +55,12 @@ public class WordListFragment extends Fragment {
     private FragmentManager mFragmentManager;
 
     public interface OnItemSelectedCallback {
-        void onItemSelected(Word word, boolean isAddMode);
+        /**
+         * on Item Selected
+         * @param word word
+         * @param isAddMode true : not need word
+         */
+        void onItemSelected(@Nullable Word word, boolean isAddMode);
     }
 
     @Override
@@ -99,9 +104,9 @@ public class WordListFragment extends Fragment {
         updateUI();
     }
 
-    private void dealWithSelectedCallback(Word word, boolean isAddMode) {
+    private void dealWithSelectedCallback(@Nullable Word word, boolean isAddWord) {
         if (null != mOnCallback) {
-            mOnCallback.onItemSelected(word, isAddMode);
+            mOnCallback.onItemSelected(word, isAddWord);
         }
     }
 
@@ -109,9 +114,7 @@ public class WordListFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case Utils.ID_ADD_WORD:
-                Word word = new Word();
-                Dictionary.getInstance().addWord(word);
-                dealWithSelectedCallback(word, true);
+                dealWithSelectedCallback(null, true);
                 break;
             case Utils.ID_SEARCH_WORD:
                 Intent intent = SearchActivity.newInstance(getActivity());

@@ -62,15 +62,15 @@ public class WordListActivity extends SingleFragmentActivity
     }
 
     @Override
-    public void onItemSelected(Word word, boolean isAddMode) {
+    public void onItemSelected(@Nullable Word word, boolean isAddWord) {
         if (Utils.isDualPane()) {
             Utils.logDebug(TAG, "onItemSelected()");
-            Fragment newDetail = WordFragment.newInstance(word.getId(), isAddMode);
+            Fragment newDetail = WordFragment.newInstance(word, isAddWord);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_fragment_container, newDetail)
                     .commit();
         } else {
-            Intent intent = WordPagerActivity.newIntent(this, word.getId(), isAddMode);
+            Intent intent = WordPagerActivity.newIntent(this, word, isAddWord);
             startActivity(intent);
         }
     }

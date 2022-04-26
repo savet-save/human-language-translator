@@ -2,6 +2,7 @@ package com.example.humanlanguagetranslator.helper;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.humanlanguagetranslator.data.Dictionary;
@@ -18,7 +19,7 @@ public class ImageHelper {
     @Nullable
     public static ImageType getImageType(String fileName) {
         if (Utils.isEmptyString(fileName)) {
-            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_STRING_NULL_OR_EMPTY);
             return null;
         }
 
@@ -54,12 +55,14 @@ public class ImageHelper {
     }
 
     public static abstract class RequestImage implements Runnable {
+        private static final String TAG = "RequestImage";
         private static final int DEFAULT_NUMBER_THREADS = 10;
         private static final ExecutorService executorService = Executors.newFixedThreadPool(DEFAULT_NUMBER_THREADS);
         private static final Object syncObject = new Object();
 
         private final Context mContext;
         private String mImageUrl;
+        @Nullable
         private ImageType mImageType;
         private final UUID mWordId;
         /**
@@ -108,28 +111,31 @@ public class ImageHelper {
          * @param word         request word
          * @param forceRequest save or read image file name
          */
-        public RequestImage(Context context, Word word, boolean forceRequest) {
+        public RequestImage(Context context, @NonNull Word word, boolean forceRequest) {
             this(context, word.getPictureLink(), word.getId(), word.getContent(), forceRequest);
             mWord = word;
         }
 
+        @Nullable
         public ImageType getImageType() {
             return mImageType;
         }
 
         @Override
         public void run() {
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
+            executorService.submit(() -> {
+                //for can get exception info
+                try {
                     dealWithImage();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         }
 
         private void dealWithImage() {
             // step 1. check local
-            if (!mForceRequest && !Utils.isEmptyString(mFileName)) {
+            if (!mForceRequest && !Utils.isEmptyString(mFileName) && mImageType != null) {
                 byte[] imageData = FileHelper.readFile(mFileName + getSuffix(),
                         mContext,
                         FileHelper.SaveDir.IMAGE_DATE);
@@ -143,12 +149,12 @@ public class ImageHelper {
             // step 2. check url
             if (mWord != null) {
                 mImageUrl = mWord.getPictureLink();
-                mImageType = ImageHelper.getImageType(mImageUrl);
             }
             if (Utils.isEmptyString(mImageUrl)) {
-                Utils.logDebug(TAG, "mImageUrl : " + mImageUrl);
+                Utils.logDebug(TAG, "mImageUrl is empty, end current method");
                 return;
             }
+            mImageType = ImageHelper.getImageType(mImageUrl); // url maybe change
             Utils.logDebug(TAG, "image type :" + mImageType);
 
             // step 3. chek net status
@@ -192,7 +198,16 @@ public class ImageHelper {
             Dictionary.getInstance().putImageData(mWordId, data);
         }
 
+        /**
+         * get image Suffix
+         *
+         * @return Suffix , or null if mImageType is null
+         */
+        @Nullable
         public String getSuffix() {
+            if (null == mImageType) {
+                return null;
+            }
             return "." + mImageType.getName();
         }
 

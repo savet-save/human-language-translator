@@ -33,6 +33,10 @@ public class Dictionary {
 
     private static final Object WORD_CACHE_LOCK = new Object();
     private final List<Word> mWords;
+    /**
+     * for find
+     */
+    private final Map<UUID, Integer> mWordFindCache;
 
     private static final Object BITMAPS_CACHE_LOCK = new Object();
     private final Map<UUID, byte[]> mImageCache;
@@ -52,6 +56,7 @@ public class Dictionary {
 
     private Dictionary() {
         mWords = new ArrayList<>();
+        mWordFindCache = new HashMap<>();
         mImageCache = new HashMap<>();
     }
 
@@ -122,7 +127,8 @@ public class Dictionary {
                     WordJsonDefine.Explain.EARLIEST_TIME_KEY);
             String earliestAddr = verifiedInfoJson.getString(WordJsonDefine.Explain.EARLIEST_ADDR_KEY);
             String other = verifiedInfoJson.getString(WordJsonDefine.Explain.OTHER_KEY);
-            VerifiedInfo verifiedInfo = new VerifiedInfo(verifiedDate, earliestDate, earliestAddr, other, true);
+            VerifiedInfo verifiedInfo = new VerifiedInfo(verifiedDate, earliestDate, earliestAddr,
+                    other, verifiedDate != null, earliestDate != null);
 
             String author = wordJson.getString(WordJsonDefine.Explain.AUTHOR_KEY);
 
@@ -203,71 +209,73 @@ public class Dictionary {
         }
     }
 
+    /**
+     *  waring : this return result can't add/remove item
+     * @return word list cache
+     */
     public List<Word> getWords() {
         return mWords;
     }
 
+    /**
+     * Find word by ID
+     * @param wordId word id
+     * @return word, or null if not find
+     */
     @Nullable
     public Word getWord(UUID wordId) {
         if (null == wordId) {
             return null;
         }
-        for (Word word : mWords) {
-            if (word.getId().equals(wordId)) {
-                return word;
-            }
+        int position = getPosition(wordId);
+        if (NOT_FOUND_POSITION != position) {
+            return mWords.get(position);
         }
         return null;
     }
 
+    /**
+     * get position
+     * @param wordId word id
+     * @return find position, if not find return NOT_FOUND_POSITION
+     */
     public int getPosition(UUID wordId) {
-        if (null == wordId) {
+        Integer position = mWordFindCache.get(wordId);
+        if (null == position) {
             return NOT_FOUND_POSITION;
         }
-        for (int i = 0; i < mWords.size(); i++) {
-            if (mWords.get(i).getId().equals(wordId)) {
-                return i;
-            }
-        }
-        return NOT_FOUND_POSITION;
+        return position;
     }
 
     /**
-     * add word to cache, mWordsNameList index is 0
+     * add word to cache, mWordsNameList index is 0, or update if id existing
      *
-     * @param word added word
+     * @param word added or update word, if is null, give up the operation
      */
-    public void addWord(@Nullable Word word) {
+    public void addWord(Word word) {
         this.addWord(word, 0);
     }
 
     /**
-     * add word to cache
+     * add word to cache, or update if id existing
      *
-     * @param word added word
-     * @param index mWordsNameList index
+     * @param word  added or update word, if is null, give up the operation
+     * @param nameIndex mWordsNameList index
      */
-    public void addWord(@Nullable Word word, int index) {
+    public void addWord(Word word, int nameIndex) {
         if (null == word) {
             return;
         }
         synchronized (WORD_CACHE_LOCK) {
-            mWords.add(word);
-            word.setNameListIndex(index);
-        }
-    }
-
-    public void updateWord(Word word) {
-        if (null == word) {
-            return;
-        }
-        for (int i = 0; i < mWords.size(); i++) {
-            if (mWords.get(i).getId().equals(word.getId())) {
-                synchronized (WORD_CACHE_LOCK) {
-                    mWords.set(i, word);
-                }
+            Integer position = mWordFindCache.get(word.getId());
+            if (null == position) {
+                mWordFindCache.put(word.getId(), mWords.size());
+                mWords.add(word);
+            } else {
+                mWords.set(position, word);
             }
         }
+        word.setNameListIndex(nameIndex);
     }
 
     public List<Word> getFilterResult(String filter) {
@@ -309,6 +317,7 @@ public class Dictionary {
 
     /**
      * get words name list size
+     *
      * @return last 0, if not has list
      */
     public int getNameListSize() {
@@ -323,7 +332,7 @@ public class Dictionary {
         try {
             jsonObject.put(WordJsonDefine.Explain.USE_VERSION_KEY, mUseVersion)
                     .put(WordJsonDefine.Explain.WORDS_KEY, JsonHelper.getJSONArrayFromStringList(mWordsNameList));
-            List <List<Word>> lists = getOrganizeWordList();
+            List<List<Word>> lists = getOrganizeWordList();
             for (int i = 0; i < mWordsNameList.size(); i++) {
                 jsonObject.put(mWordsNameList.get(i), JsonHelper.getJSONArrayFromWordList(lists.get(i)));
             }
@@ -335,10 +344,11 @@ public class Dictionary {
 
     /**
      * Create a List based on which Words the name belongs to
+     *
      * @return a List
      */
     public List<List<Word>> getOrganizeWordList() {
-        List <List<Word>> lists = new ArrayList<>();
+        List<List<Word>> lists = new ArrayList<>();
         for (int i = 0; i < mWords.size(); i++) {
             Word checkedWord = mWords.get(i);
             //check index out of bounds

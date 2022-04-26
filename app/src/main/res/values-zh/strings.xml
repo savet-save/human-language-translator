@@ -23,7 +23,7 @@
         Github : null\n
     </string>
 
-    <string name="format_word_data">%1$04d年 %2$02d月 %3$04d日</string>
+    <string name="format_word_data">%1$04d年 %2$02d月 %3$02d日</string>
     <string name="format_word_synonym">同义：%1$s</string>
     <string name="format_word_type">类别：%1$s</string>
 
@@ -36,4 +36,11 @@
     <string name="app_load">加载中</string>
     <string name="default_hint_load">载入中..</string>
     <string name="save_word">保存</string>
+    <string name="build_word">修改</string>
+    <string name="modifying_word">修改中..</string>
+    <string name="not_save_info">保存失败：至少需要设定单词名和一个翻译</string>
+    <string name="not_save_info_with_verified">
+        保存失败：至少需要设定单词名、一个翻译
+        和考证信息（考证时间、最早时间和最早地址）
+    </string>
 </resources>
