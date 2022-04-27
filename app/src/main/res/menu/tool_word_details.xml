@@ -14,4 +14,10 @@
         android:title="@string/build_word"
         app:showAsAction="ifRoom|withText" />
 
+    <item
+        android:id="@+id/menu_item_select_word_name"
+        android:icon="@drawable/ic_menu_setting"
+        android:title="@string/select_names"
+        app:showAsAction="never|withText" />
+
 </menu>

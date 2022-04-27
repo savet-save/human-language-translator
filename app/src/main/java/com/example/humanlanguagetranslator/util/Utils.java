@@ -34,6 +34,7 @@ public final class Utils {
      */
     public static final int ID_MENU_SAVE = R.id.menu_item_save;
     public static final int ID_MENU_BUILD = R.id.menu_item_build;
+    public static final int ID_MENU_SELECT_NAMES = R.id.menu_item_select_word_name;
 
     public static final int MAX_LONG_SHOW_LENGTH = String.valueOf(Long.MAX_VALUE).length();
 

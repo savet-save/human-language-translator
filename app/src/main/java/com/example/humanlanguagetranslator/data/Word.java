@@ -306,7 +306,7 @@ public class Word implements Parcelable {
             Utils.logDebug(TAG, "set index out of range : " + index);
             return;
         }
-        this.mNameListIndex = index;
+        mNameListIndex = index;
     }
 
     @NonNull

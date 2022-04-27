@@ -43,4 +43,5 @@
         保存失败：至少需要设定单词名、一个翻译
         和考证信息（考证时间、最早时间和最早地址）
     </string>
+    <string name="select_names">选择单词字典归属</string>
 </resources>

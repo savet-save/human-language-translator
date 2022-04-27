@@ -56,6 +56,9 @@ public class WordFragment extends Fragment {
     private TextView mSynonymText;
     private TextView mVerifiedDateText;
     private OnWordUpdatedCallback mCallback;
+    /**
+     * init after onCreate()
+     */
     @Nullable
     private FragmentManager mFragmentManager;
     private TextView mTypeText;
@@ -73,6 +76,7 @@ public class WordFragment extends Fragment {
     private ImageHelper.RequestImage mRequestImage;
     private boolean isModifyMode;
     private List<CommonInputFragment.InputViewType> mViewList;
+    private CommonInputFragment.InputViewType mSelectNamesHelper;
 
     public interface OnWordUpdatedCallback {
         void onWordUpdated(Word word);
@@ -193,6 +197,17 @@ public class WordFragment extends Fragment {
             case Utils.ID_MENU_BUILD:
                 buildModeChange(!isModifyMode);
                 break;
+            case Utils.ID_MENU_SELECT_NAMES:
+                if (null == mWord || null == mFragmentManager || null == mSelectNamesHelper) {
+                    Utils.logDebug(TAG, "warning : mWord , mFragmentManager or mSelectNamesHelper is null");
+                    break;
+                }
+                CommonInputFragment dialog = CommonInputFragment.newSelectInstance(mSelectNamesHelper.getTitle(),
+                        mSelectNamesHelper.getSpinnerAllItem(),
+                        mSelectNamesHelper.getSelectItem(),
+                        mSelectNamesHelper.getId());
+                dialog.show(mFragmentManager, COMMON_INPUT_DIALOG_TAG);
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -216,6 +231,8 @@ public class WordFragment extends Fragment {
         mRestorersText = layout.findViewById(R.id.details_word_restorers_text);
         mImageView = layout.findViewById(R.id.details_word_item_image);
         mGifView = layout.findViewById(R.id.details_word_item_gif_image);
+
+        initSelectNamesMenuHelper();
 
         initImageHint(getActivity());
 
@@ -531,6 +548,7 @@ public class WordFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         cleanAllResultListener();
+        cleanSelectNamesListener();
     }
 
     private void buildModeChange(boolean enable) {
@@ -565,6 +583,52 @@ public class WordFragment extends Fragment {
         } else {
             activity.setTitle(R.string.app_title);
         }
+    }
+
+    // only need call once on created
+    private void initSelectNamesMenuHelper() {
+        List<String> wordsNameList = Dictionary.getInstance().getWordsNameList();
+        if (null == wordsNameList) {
+            Utils.logDebug(TAG, "initSelectNamesMenuHelper fail : can't getWordsNameList from Dictionary");
+            return;
+        }
+        if (null == mFragmentManager) {
+            Utils.logDebug(TAG, "initSelectNamesMenuHelper fail  : mFragmentManager is null");
+            return;
+        }
+        mSelectNamesHelper = new CommonInputFragment.InputViewType(mTypeText, CommonInputFragment.InputType.SPINNER)
+                .setSpinnerInfo(getString(R.string.select_names), wordsNameList.toArray(new String[0]), mWord.getNameListIndex())
+                .setSaveDataCallback(bundle -> {
+                    if (null == bundle) {
+                        Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+                        return;
+                    }
+                    int index = bundle.getInt(CommonInputFragment.RESULT_SELECT_KEY);
+                    mWord.setNameListIndex(index);
+                });
+        mFragmentManager.setFragmentResultListener(mSelectNamesHelper.getId(),
+                this,
+                (requestKey, result) -> {
+                    Utils.logDebug(TAG, "requestKey : " + requestKey);
+                    String string = result.getString(CommonInputFragment.RESULT_TEXT_KEY);
+                    Date date = (Date) result.getSerializable(CommonInputFragment.RESULT_DATE_KEY);
+                    int index = result.getInt(CommonInputFragment.RESULT_SELECT_KEY);
+                    ArrayList<String> arrayList = result.getStringArrayList(CommonInputFragment.RESULT_INPUT_ARRAY_CONTENT);
+                    Utils.logDebug(TAG, "index :" + index);
+
+                    mSelectNamesHelper.updateCache(string, date, index, arrayList);
+                    CommonInputFragment.InputViewType.SaveDataCallback callback = mSelectNamesHelper.getSaveDataCallback();
+                    if (null != callback) {
+                        callback.saveData(result);
+                    }
+                });
+    }
+
+    private void cleanSelectNamesListener() {
+        if (null == mFragmentManager || null == mSelectNamesHelper) {
+            return;
+        }
+        mFragmentManager.clearFragmentResultListener(mSelectNamesHelper.getId());
     }
 
     // only need call once on created

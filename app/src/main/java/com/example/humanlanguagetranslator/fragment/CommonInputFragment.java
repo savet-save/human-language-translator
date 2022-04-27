@@ -225,9 +225,12 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         MySpinnerAdapter spinnerAdapter = new MySpinnerAdapter(getActivity());
         if (items != null) {
             spinnerAdapter.setShowData(items);
-            mSpinner.setSelection(selection);
         }
+
         mSpinner.setAdapter(spinnerAdapter);
+        if (items != null) {
+            mSpinner.setSelection(selection); // must call after setAdapter
+        }
     }
 
     private void textInputInit(Bundle arguments) {
@@ -479,6 +482,7 @@ public class CommonInputFragment extends DialogFragment implements DialogInterfa
         }
 
         public int getSelectItem() {
+            Utils.logDebug(TAG, "mSelectItem : " + mSelectItem);
             return mSelectItem;
         }
     }

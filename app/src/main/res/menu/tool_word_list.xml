@@ -13,11 +13,11 @@
         android:icon="@drawable/ic_add_word_dark"
         android:title="@string/add_word"
         app:showAsAction="never|withText" />
+
     <item
         android:id="@+id/menu_item_about"
         android:icon="@drawable/ic_menu_about_dark"
         android:title="@string/about_info"
-        app:showAsAction="never|withText"
-        />
+        app:showAsAction="never|withText" />
 
 </menu>

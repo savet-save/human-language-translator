@@ -248,12 +248,12 @@ public class Dictionary {
     }
 
     /**
-     * add word to cache, mWordsNameList index is 0, or update if id existing
+     * add word to cache, mWordsNameList index default is 0, or update if id existing
      *
      * @param word added or update word, if is null, give up the operation
      */
     public void addWord(Word word) {
-        this.addWord(word, 0);
+        this.addWord(word, word.getNameListIndex());
     }
 
     /**
@@ -333,7 +333,7 @@ public class Dictionary {
             jsonObject.put(WordJsonDefine.Explain.USE_VERSION_KEY, mUseVersion)
                     .put(WordJsonDefine.Explain.WORDS_KEY, JsonHelper.getJSONArrayFromStringList(mWordsNameList));
             List<List<Word>> lists = getOrganizeWordList();
-            for (int i = 0; i < mWordsNameList.size(); i++) {
+            for (int i = 0; i < lists.size(); i++) { // lists size >= mWordsNameList size
                 jsonObject.put(mWordsNameList.get(i), JsonHelper.getJSONArrayFromWordList(lists.get(i)));
             }
         } catch (JSONException e) {
@@ -351,6 +351,7 @@ public class Dictionary {
         List<List<Word>> lists = new ArrayList<>();
         for (int i = 0; i < mWords.size(); i++) {
             Word checkedWord = mWords.get(i);
+            Utils.logDebug(TAG, "checkedWord.getNameListIndex() : " + checkedWord.getNameListIndex());
             //check index out of bounds
             while (checkedWord.getNameListIndex() >= lists.size()) {
                 lists.add(new LinkedList<>());
