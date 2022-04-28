@@ -103,17 +103,6 @@ public final class Utils {
         return builder.toString();
     }
 
-    public static boolean isDualPane() {
-        String activityName = WordListActivity.class.getSimpleName();
-        AppCompatActivity wordListActivity = ActivityManager.findActivity(activityName);
-        if (null == wordListActivity) {
-            Utils.logDebug(TAG, "isDualPane fail : not find " + activityName +" in ActivityManager");
-            return false;
-        }
-        View viewById = wordListActivity.findViewById(R.id.detail_fragment_container);
-        return (null == viewById);
-    }
-
     public static int getWithDp() {
         //获取屏幕宽高
         final int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;

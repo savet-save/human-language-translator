@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.humanlanguagetranslator.R;
+import com.example.humanlanguagetranslator.util.Utils;
 
 public abstract class SingleFragmentActivity extends Easy2ManagerActivity {
 
