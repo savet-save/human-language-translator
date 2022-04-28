@@ -178,12 +178,12 @@ public class WordFragment extends Fragment {
         switch (item.getItemId()) {
             case Utils.ID_MENU_SAVE:
                 String errorInfo = null;
-                if (null == mWord || mWord.getWordType() != WordJsonDefine.WordType.VERIFIED) {
+                if (mWord.getWordType() != WordJsonDefine.WordType.VERIFIED) {
                     errorInfo = getString(R.string.not_save_info);
                 } else {
                     errorInfo = getString(R.string.not_save_info_with_verified);
                 }
-                if (null == mWord || !mWord.checkWordValidity()) {
+                if (!mWord.checkWordValidity()) {
                     Toast.makeText(getActivity(), errorInfo, Toast.LENGTH_SHORT)
                             .show();
                     break;
@@ -198,7 +198,7 @@ public class WordFragment extends Fragment {
                 buildModeChange(!isModifyMode);
                 break;
             case Utils.ID_MENU_SELECT_NAMES:
-                if (null == mWord || null == mFragmentManager || null == mSelectNamesHelper) {
+                if (null == mFragmentManager || null == mSelectNamesHelper) {
                     Utils.logDebug(TAG, "warning : mWord , mFragmentManager or mSelectNamesHelper is null");
                     break;
                 }
@@ -207,6 +207,16 @@ public class WordFragment extends Fragment {
                         mSelectNamesHelper.getSelectItem(),
                         mSelectNamesHelper.getId());
                 dialog.show(mFragmentManager, COMMON_INPUT_DIALOG_TAG);
+                break;
+            case Utils.ID_MENU_DELETE:
+                Utils.logDebug(TAG, "remove word : " + mWord.getId());
+                if (Dictionary.getInstance().removeWord(mWord)) {
+                    saveToFileInBackground();
+                }
+                FragmentActivity activity = getActivity();
+                if (activity != null) {
+                    activity.onBackPressed(); // destroy self
+                }
                 break;
             default:
                 return super.onOptionsItemSelected(item);

@@ -23,6 +23,7 @@
     <string name="save_word">save</string>
     <string name="build_word">build</string>
     <string name="select_names">select word affiliation</string>
+    <string name="delete_word">delete</string>
 
     <string name="app_title">translator</string>
 
@@ -44,7 +45,7 @@
     <string name="modifying_word">modifying..</string>
     <string name="not_save_info">can\'t save : at least a word name and a translator are required</string>
     <string name="not_save_info_with_verified">
-        can\'t save : at least a word name and a translator are required and
-        Verified info（Verified date, Earliest date and earliest address）
+        "can't save : at least a word name and a translator are required and
+        Verified info（Verified date, Earliest date and earliest address）"
     </string>
 </resources>

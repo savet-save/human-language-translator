@@ -34,9 +34,9 @@ public class Dictionary {
     private static final Object WORD_CACHE_LOCK = new Object();
     private final List<Word> mWords;
     /**
-     * for find
+     * for fast find word
      */
-    private final Map<UUID, Integer> mWordFindCache;
+    private final Map<UUID, Integer> mWordPositionCache;
 
     private static final Object BITMAPS_CACHE_LOCK = new Object();
     private final Map<UUID, byte[]> mImageCache;
@@ -56,7 +56,7 @@ public class Dictionary {
 
     private Dictionary() {
         mWords = new ArrayList<>();
-        mWordFindCache = new HashMap<>();
+        mWordPositionCache = new HashMap<>();
         mImageCache = new HashMap<>();
     }
 
@@ -210,7 +210,8 @@ public class Dictionary {
     }
 
     /**
-     *  waring : this return result can't add/remove item
+     * waring : this return result can't add/remove item
+     *
      * @return word list cache
      */
     public List<Word> getWords() {
@@ -219,6 +220,7 @@ public class Dictionary {
 
     /**
      * Find word by ID
+     *
      * @param wordId word id
      * @return word, or null if not find
      */
@@ -236,11 +238,12 @@ public class Dictionary {
 
     /**
      * get position
+     *
      * @param wordId word id
      * @return find position, if not find return NOT_FOUND_POSITION
      */
     public int getPosition(UUID wordId) {
-        Integer position = mWordFindCache.get(wordId);
+        Integer position = mWordPositionCache.get(wordId);
         if (null == position) {
             return NOT_FOUND_POSITION;
         }
@@ -259,23 +262,46 @@ public class Dictionary {
     /**
      * add word to cache, or update if id existing
      *
-     * @param word  added or update word, if is null, give up the operation
+     * @param word      added or update word, if is null, give up the operation
      * @param nameIndex mWordsNameList index
      */
     public void addWord(Word word, int nameIndex) {
         if (null == word) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
             return;
         }
         synchronized (WORD_CACHE_LOCK) {
-            Integer position = mWordFindCache.get(word.getId());
+            Integer position = mWordPositionCache.get(word.getId());
             if (null == position) {
-                mWordFindCache.put(word.getId(), mWords.size());
+                mWordPositionCache.put(word.getId(), mWords.size());
                 mWords.add(word);
             } else {
                 mWords.set(position, word);
             }
         }
         word.setNameListIndex(nameIndex);
+    }
+
+    /**
+     * remove word from cache
+     * @param word word
+     * @return whether successfully removed
+     */
+    public boolean removeWord(Word word) {
+        if (null == word) {
+            Utils.outLog(TAG, Utils.OutLogType.PARAMETER_NULL_WARNING);
+            return false;
+        }
+        synchronized (WORD_CACHE_LOCK) {
+            Integer position = mWordPositionCache.get(word.getId());
+            if (null == position) {
+                Utils.logDebug(TAG, "not word's position cache, remove fail");
+                return false;
+            } else {
+                mWords.remove((int) position);
+            }
+        }
+        return true;
     }
 
     public List<Word> getFilterResult(String filter) {

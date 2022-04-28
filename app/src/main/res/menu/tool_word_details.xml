@@ -20,4 +20,10 @@
         android:title="@string/select_names"
         app:showAsAction="never|withText" />
 
+    <item
+        android:id="@+id/menu_item_delete_word"
+        android:icon="@drawable/ic_menu_setting"
+        android:title="@string/delete_word"
+        app:showAsAction="never|withText" />
+
 </menu>
