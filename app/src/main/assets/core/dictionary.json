@@ -82,35 +82,119 @@
         ""
       ],
       "picture_link": "https://wx3.sinaimg.cn/mw690/c3cb3fably1h164xpmcxlg20a00720uf.gif"
-    }
-  ],
-  "words-en": [
+    },
     {
-      "word": "yyds",
-      "synonym": "",
-      "type": "verified",
+      "word": "xdm",
+      "synonym": [
+        ""
+      ],
+      "type": "unverified",
       "translation": [
-        "Generally speaking, it is the initials of network language, full name: eternal god/eternal god, generally used to express praise to each other, or used for the affirmation and appreciation of things",
-        "Eternal god means 'eternal god' and expresses love and belief in someone or something. Because it can be used in a wide range, it is convenient to spread but also can play the meme"
+        "今晚一起吃鸡，xdm，这里的xdm可以是代表，兄弟们",
+        "认为可以别人占自己便宜，xdm，这里的xdm可以代表，想得美"
       ],
       "quarry": [
-        "The origin of this meme is because Sanoro (former pro/anchor) once called Uzi this way during his live broadcast. He called Uzi the Eternal God. Later, as the water friends kept repeating, it became a popular meme today."
+        ""
       ],
       "example": [
-        "百事可乐，yyds!",
-        "乌兹，yyds。"
+        "今晚一起王者，xdm",
+        "xdm，和你不熟"
       ],
       "verified_info": {
-        "verified_time": "2021-10-06",
-        "earliest_time": "2019-11-02",
-        "earliest_addr": "https://zhidao.baidu.com/question/655796786147620525.html",
+        "verified_time": "",
+        "earliest_time": "",
+        "earliest_addr": "https://www.chinaz.com/2020/1130/1211594.shtml",
         "other": ""
       },
       "author": "savet_save@163.com",
       "restorers": [
         ""
       ],
-      "picture_link": "https://tvax4.sinaimg.cn/large/c3cb3fably1h14xcbkcobj20mw0k0mxs.jpg"
+      "picture_link" : ""
+    },
+    {
+      "word": "emo",
+      "synonym": [
+        ""
+      ],
+      "type": "unverified",
+      "translation": [
+        "一般是用于表达不开心的情绪",
+        "Emo是单词emotional的缩写，原意为“情绪硬核”，是一种独立的摇滚风格，后来在网络上被大家用来形容各种负面情绪，比如抑郁、不开心、悲伤、失落、不如意等。"
+      ],
+      "quarry": [
+        ""
+      ],
+      "example": [
+        "又加班，我是彻彻底底emo了",
+        "超级大emooooooooo，我失恋了"
+      ],
+      "verified_info": {
+        "verified_time": "",
+        "earliest_time": "",
+        "earliest_addr": "https://new.qq.com/omn/20211228/20211228A08WL100.html",
+        "other": ""
+      },
+      "author": "savet_save@163.com",
+      "restorers": [
+        ""
+      ],
+      "picture_link" : "https://tvax4.sinaimg.cn/large/c3cb3fably1h1qvz1b9mxj20qq0rs758.jpg"
+    }
+  ],
+  "words-en": [
+    {
+      "word": "hru",
+      "synonym": "",
+      "type": "verified",
+      "translation": [
+        "全称：How Are You?(你好吗?)，这个特定首字母缩略词令人困惑的是，“are”和“you”这两个词不是用它们的第一个字母表示的。相反，该首字母缩略词使用互联网俚语“R”和“U”，听起来与它们对应的词“are”和“you”完全一样"
+      ],
+      "quarry": [
+        ""
+      ],
+      "example": [
+        "Hey hru",
+        "Np hun, it happens. So hru?"
+      ],
+      "verified_info": {
+        "verified_time": "2022-4-29",
+        "earliest_time": "2019-5-14",
+        "earliest_addr": "https://www.liveabout.com/what-does-hru-mean-4153318",
+        "other": ""
+      },
+      "author": "savet_save@163.com",
+      "restorers": [
+        ""
+      ],
+      "picture_link": "https://tvax2.sinaimg.cn/large/c3cb3fably1h1qv4ywo4dj20c80fht8u.jpg"
+    },
+    {
+      "word": "LTNS",
+      "synonym": [
+        ""
+      ],
+      "type": "unverified",
+      "translation": [
+        "全称：Long Time No See(好久不见），是一个俚语。它是在线聊天和发短信中最常用的首字母缩略词之一"
+      ],
+      "quarry": [
+        ""
+      ],
+      "example": [
+        "LTNS, my friend."
+      ],
+      "verified_info": {
+        "verified_time": "",
+        "earliest_time": "",
+        "earliest_addr": "https://www.urdupoint.com/dictionary/slang/3294/ltns.html",
+        "other": ""
+      },
+      "author": "savet_save@163.com",
+      "restorers": [
+        ""
+      ],
+      "picture_link": ""
     }
   ]
 }
