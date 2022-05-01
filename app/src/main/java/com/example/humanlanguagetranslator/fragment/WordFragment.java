@@ -1,6 +1,8 @@
 package com.example.humanlanguagetranslator.fragment;
 
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -253,6 +255,7 @@ public class WordFragment extends Fragment {
             return null;
         }
         setAllOnClick();
+        setAllOnLongClick();
         setAllResultListener();
 
         if (!isModifyMode) {
@@ -263,6 +266,37 @@ public class WordFragment extends Fragment {
         updateAllUI();
 
         return layout;
+    }
+
+    private void setAllOnLongClick() {
+        FragmentActivity activity = getActivity();
+        if (null == activity) {
+            Utils.outLog(TAG, "setAllOnLongClick fail : can't get activity");
+            return;
+        }
+        //get ClipboardManager
+        ClipboardManager cm = (ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+        // 创建普通字符型ClipData
+        for(CommonInputFragment.InputViewType viewType : mViewList) {
+            View view = viewType.getView();
+            view.setOnLongClickListener((v -> {
+                String text = null;
+                if (view instanceof TextView) {
+                    text = ((TextView) view).getText().toString();
+                } else { // only image not is TextView on here
+                    text = mWord.getPictureLink();
+                }
+                if (Utils.isEmptyString(text)) { //not need copy empty string
+                    return true;
+                }
+                ClipData mClipData = ClipData.newPlainText(activity.getPackageName(), text);
+                // 将ClipData内容放到系统剪贴板里
+                cm.setPrimaryClip(mClipData);
+                Toast.makeText(activity,R.string.copy_success, Toast.LENGTH_SHORT).show();
+                return true;
+            }));
+        }
+
     }
 
     @Override

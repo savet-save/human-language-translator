@@ -45,4 +45,5 @@
     </string>
     <string name="select_names">选择词条字典归属</string>
     <string name="delete_word">删除本词条</string>
+    <string name="copy_success">内容已经复制到剪切板</string>
 </resources>

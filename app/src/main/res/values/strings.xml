@@ -48,4 +48,5 @@
         "can't save : at least a word name and a translator are required and
         Verified info（Verified date, Earliest date and earliest address）"
     </string>
+    <string name="copy_success">the content has been copied to the clipboard</string>
 </resources>
