@@ -57,7 +57,8 @@ public class WordListFragment extends Fragment {
     public interface OnItemSelectedCallback {
         /**
          * on Item Selected
-         * @param word word
+         *
+         * @param word      word
          * @param isAddMode true : not need word
          */
         void onItemSelected(@Nullable Word word, boolean isAddMode);
@@ -81,20 +82,23 @@ public class WordListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_word_list, container, false);
         FragmentActivity activity = getActivity();
-        if (null != activity) {
-            mWordRecyclerView = (RecyclerView) view.findViewById(R.id.word_recycler_view);
-            mWordRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
-            //设置每一项之间的分割线
-            mWordRecyclerView.addItemDecoration(new DividerItemDecoration(activity,
-                    DividerItemDecoration.VERTICAL));
-
-            //设置显示的内容
-            setShowWord(mCreateArguments.getParcelableArrayList(ARG_WORD_LIST));
-
-            mFragmentManager = activity.getSupportFragmentManager();
-            updateUI();
+        if (null == activity) {
+            Utils.outLog(TAG, "can't get Activity");
+            return null;
         }
-//        Utils.logDebug(TAG, "dictionary : \n" + Dictionary.getInstance().toJsonString());
+        mWordRecyclerView = view.findViewById(R.id.word_recycler_view);
+        mWordRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        //设置每一项之间的分割线
+        mWordRecyclerView.addItemDecoration(new DividerItemDecoration(activity,
+                DividerItemDecoration.VERTICAL));
+
+        //设置显示的内容
+        setShowWord(mCreateArguments.getParcelableArrayList(ARG_WORD_LIST));
+
+        mFragmentManager = activity.getSupportFragmentManager();
+
+        updateUI();
+
         return view;
     }
 
@@ -212,10 +216,10 @@ public class WordListFragment extends Fragment {
         public WordHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_word, parent, false));
             itemView.setOnClickListener(this);
-            mImageView = (ImageView) itemView.findViewById(R.id.word_item_image);
-            mGifView = (GifView) itemView.findViewById(R.id.word_item_gif_image);
-            mTitleView = (TextView) itemView.findViewById(R.id.word_item_title_text);
-            mTranslationView = (TextView) itemView.findViewById(R.id.word_item_content_text);
+            mImageView = itemView.findViewById(R.id.word_item_image);
+            mGifView = itemView.findViewById(R.id.word_item_gif_image);
+            mTitleView = itemView.findViewById(R.id.word_item_title_text);
+            mTranslationView = itemView.findViewById(R.id.word_item_content_text);
         }
 
         public void bind(Word word, @Nullable byte[] imageData) {
@@ -223,6 +227,7 @@ public class WordListFragment extends Fragment {
                 Utils.outLog(TAG, "bind: word is null");
                 return;
             }
+
             mWord = word;
             mRequestImage = new ImageHelper.RequestImage(getActivity(),
                     mWord.getPictureLink(),
@@ -234,8 +239,11 @@ public class WordListFragment extends Fragment {
                     myUpdateImage(data);
                 }
             };
+
             mTitleView.setText(mWord.getContent() == null ? "is null?" : mWord.getContent());
             mTranslationView.setText(Utils.getFormatString(mWord.getTranslations()));
+            mImageView.setVisibility(View.INVISIBLE);// because is ConstraintLayout, so not use Gone
+            mGifView.setVisibility(View.INVISIBLE);
             if (imageData != null) {
                 myUpdateImage(imageData);
             } else {
@@ -246,26 +254,22 @@ public class WordListFragment extends Fragment {
         private void myUpdateImage(byte[] data) {
             if (ImageHelper.ImageType.GIF == mRequestImage.getImageType()) {
                 Movie movie = Movie.decodeByteArray(data, 0, data.length);
-                GlobalHandler.getInstance().post2UIHandler(new Runnable() {
-                    @Override
-                    public void run() {
-                        mGifView.setMovie(movie);
-                        mGifView.setVisibility(View.VISIBLE);
-                        mImageView.setVisibility(View.INVISIBLE); // because is ConstraintLayout
-                    }
+                GlobalHandler.getInstance().post2UIHandler(() -> {
+                    mGifView.setMovie(movie);
+                    // because image type may change
+                    mGifView.setVisibility(View.VISIBLE);
+                    mImageView.setVisibility(View.INVISIBLE);
                 });
             } else {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 if (null == bitmap) {
                     Utils.outLog(TAG, "decode bitmap fail from Byte Array");
                 }
-                GlobalHandler.getInstance().post2UIHandler(new Runnable() {
-                    @Override
-                    public void run() {
-                        mImageView.setImageBitmap(bitmap);
-                        mImageView.setVisibility(View.VISIBLE);
-                        mGifView.setVisibility(View.INVISIBLE);// because is ConstraintLayout
-                    }
+                GlobalHandler.getInstance().post2UIHandler(() -> {
+                    mImageView.setImageBitmap(bitmap);
+                    // because image type may change
+                    mImageView.setVisibility(View.VISIBLE);
+                    mGifView.setVisibility(View.INVISIBLE);
                 });
             }
         }
@@ -306,6 +310,8 @@ public class WordListFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull WordHolder holder, int position) {
             Word word = mWords.get(position);
+            Utils.logDebug(TAG, "position : " + position + "  word : " + word.getContent()
+            + " id : " + word.getId());
             holder.bind(word, Dictionary.getInstance().getImageData(word.getId()));
         }
 
