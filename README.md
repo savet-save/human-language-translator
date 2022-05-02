@@ -15,7 +15,7 @@
 ---
 
 # 基于
-[翻译核心](htttps://https://github.com/savet-save/translate-core "核心")
+[翻译核心](https://github.com/savet-save/translate-core "核心")
 
 ---
 
