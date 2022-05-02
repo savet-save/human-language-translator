@@ -17,6 +17,7 @@
         android:id="@+id/text_input_dialog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:autofillHints="wordContentDescription"
         android:gravity="start|top"
         android:inputType="textMultiLine"
@@ -28,6 +29,7 @@
         android:id="@+id/select_dialog"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
         android:gravity="center"
         android:visibility="gone" />
 
@@ -35,8 +37,8 @@
         android:id="@+id/array_text_input_dialog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginStart="8dp"
+        android:orientation="vertical"
         android:visibility="gone">
 
         <androidx.recyclerview.widget.RecyclerView

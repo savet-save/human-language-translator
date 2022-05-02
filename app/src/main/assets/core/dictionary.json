@@ -85,9 +85,7 @@
     },
     {
       "word": "xdm",
-      "synonym": [
-        ""
-      ],
+      "synonym": "",
       "type": "unverified",
       "translation": [
         "今晚一起吃鸡，xdm，这里的xdm可以是代表，兄弟们",
@@ -110,13 +108,11 @@
       "restorers": [
         ""
       ],
-      "picture_link" : ""
+      "picture_link": ""
     },
     {
       "word": "emo",
-      "synonym": [
-        ""
-      ],
+      "synonym": "",
       "type": "unverified",
       "translation": [
         "一般是用于表达不开心的情绪",
@@ -139,7 +135,7 @@
       "restorers": [
         ""
       ],
-      "picture_link" : "https://tvax4.sinaimg.cn/large/c3cb3fably1h1qvz1b9mxj20qq0rs758.jpg"
+      "picture_link": "https://tvax4.sinaimg.cn/large/c3cb3fably1h1qvz1b9mxj20qq0rs758.jpg"
     }
   ],
   "words-en": [
@@ -171,9 +167,7 @@
     },
     {
       "word": "LTNS",
-      "synonym": [
-        ""
-      ],
+      "synonym": "",
       "type": "unverified",
       "translation": [
         "全称：Long Time No See(好久不见），是一个俚语。它是在线聊天和发短信中最常用的首字母缩略词之一"
