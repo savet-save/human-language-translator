@@ -1,5 +1,7 @@
 package com.example.humanlanguagetranslator.util;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.StrictMode;
@@ -38,6 +40,8 @@ public final class Utils {
     public static final int ID_MENU_DELETE = R.id.menu_item_delete_word;
 
     public static final int MAX_LONG_SHOW_LENGTH = String.valueOf(Long.MAX_VALUE).length();
+
+    public static final String GITHUB_ADDR = "https://github.com/savet-save/human-language-translator";
 
     private static long sSequenceNumber = 0;
     private static final Object SEQUENCE_NUMBER_LOCK = new Object();
@@ -256,5 +260,15 @@ public final class Utils {
         Locale locale = context.getResources().getConfiguration().locale;
         String language = locale.getLanguage();
         return language.endsWith(new Locale("zh").getLanguage());
+    }
+
+    public static void putSystemClipboard(Context context, String text) {
+        if (null == context || isEmptyString(text)) {
+            outLog(TAG, OutLogType.PARAMETER_NULL_WARNING);
+            return;
+        }
+        ClipboardManager cm = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData mClipData = ClipData.newPlainText(context.getPackageName(), text);
+        cm.setPrimaryClip(mClipData);
     }
 }

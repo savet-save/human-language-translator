@@ -15,10 +15,11 @@
         > help you translate all kinds of web into comprehensible content\n
         > you can customize the thesaurus\n
         > You can add/modify your own translations\n
-        > You can upload it and let others use it (not implemented yet)\n
+        > Adaptive Chinese/English environment\n
+        > Adaptive copy content (long press)\n
         Author : savet\n
         Email address : savet_save@163.com\n
-        Github address : null\n
+        Github address : https://github.com/savet-save/human-language-translator\n
     </string>
     <string name="save_word">save</string>
     <string name="build_word">build</string>
@@ -49,4 +50,5 @@
         Verified info（Verified date, Earliest date and earliest address）"
     </string>
     <string name="copy_success">the content has been copied to the clipboard</string>
+    <string name="content_copy">%1$s is copied to the clipboard</string>
 </resources>

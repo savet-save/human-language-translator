@@ -274,10 +274,8 @@ public class WordFragment extends Fragment {
             Utils.outLog(TAG, "setAllOnLongClick fail : can't get activity");
             return;
         }
-        //get ClipboardManager
-        ClipboardManager cm = (ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
-        // 创建普通字符型ClipData
-        for(CommonInputFragment.InputViewType viewType : mViewList) {
+
+        for (CommonInputFragment.InputViewType viewType : mViewList) {
             View view = viewType.getView();
             view.setOnLongClickListener((v -> {
                 String text = null;
@@ -287,12 +285,10 @@ public class WordFragment extends Fragment {
                     text = mWord.getPictureLink();
                 }
                 if (Utils.isEmptyString(text)) { //not need copy empty string
-                    return true;
+                    return false;
                 }
-                ClipData mClipData = ClipData.newPlainText(activity.getPackageName(), text);
-                // 将ClipData内容放到系统剪贴板里
-                cm.setPrimaryClip(mClipData);
-                Toast.makeText(activity,R.string.copy_success, Toast.LENGTH_SHORT).show();
+                Utils.putSystemClipboard(activity, text);
+                Toast.makeText(activity, R.string.copy_success, Toast.LENGTH_SHORT).show();
                 return true;
             }));
         }

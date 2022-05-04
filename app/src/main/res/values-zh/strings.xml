@@ -14,13 +14,14 @@
     <string name="about_info">关于</string>
     <string name="about_info_content">
         这是一个\'人话翻译器\'\n
-        >帮助你翻译各种网络用于成为能够理解的内容\n
-        >可以自定义词库\n
-        >可以自行添加/修改翻译\n
-        >可以进行上传，让别人也能使用(暂未实现)\n
+        > 帮助你翻译各种网络用于成为能够理解的内容\n
+        > 可以自定义词库\n
+        > 可以自行添加/修改翻译\n
+        > 自适应中文/英文环境\n
+        > 自适应复制内容（长按）\n
         作者 : savet\n
         邮箱 : savet_save@163.com\n
-        Github : null\n
+        Github : https://github.com/savet-save/human-language-translator\n
     </string>
 
     <string name="format_word_data">%1$04d年 %2$02d月 %3$02d日</string>
@@ -46,4 +47,5 @@
     <string name="select_names">选择词条字典归属</string>
     <string name="delete_word">删除本词条</string>
     <string name="copy_success">内容已经复制到剪切板</string>
+    <string name="content_copy">%1$s 被复制到剪切板</string>
 </resources>

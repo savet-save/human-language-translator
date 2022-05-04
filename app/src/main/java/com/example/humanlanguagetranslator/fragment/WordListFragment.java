@@ -126,7 +126,7 @@ public class WordListFragment extends Fragment {
                 break;
             case Utils.ID_MENU_ABOUT:
                 Utils.logDebug(TAG, "about");
-                InfoShowFragment.newInstance(getString(R.string.about_info), getString(R.string.about_info_content))
+                InfoShowFragment.newInstance(getString(R.string.about_info), getString(R.string.about_info_content), Utils.GITHUB_ADDR)
                         .show(mFragmentManager, SHOW_INFO_TAG);
                 break;
             default:
